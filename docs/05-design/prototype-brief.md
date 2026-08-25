@@ -1,27 +1,30 @@
 # Output #10 - Prototype Brief
 
-**Prototype goal:** Kiểm chứng các luồng có rủi ro cao liên quan đến tương tác giữa AI và sự kiểm soát của con người (Human-in-the-loop).
-**Persona:** Lan - Recruiter bận rộn & Mai - Interviewer.
+**Prototype Goal:** Xác thực thiết kế UX/UI cho các luồng nghiệp vụ có rủi ro cao, đặc biệt tập trung vào cơ chế tương tác Human-in-the-loop (con người kiểm soát AI) nhằm đảm bảo tính minh bạch và tính chính xác của hệ thống.
+**Persona:** Lan (Recruiter) - Sàng lọc hồ sơ & Mai (Interviewer) - Phỏng vấn đánh giá.
 
-## 1. Flows
-**FLOW A - AI-Assisted CV Screening (Lan)**
-Mở chi tiết ứng viên → `loading` (AI đang phân tích) → hiển thị chia đôi màn hình: CV gốc (trái) và AI Summary + Match Score + Reason (phải).
+## 1. Các luồng tương tác chính (User Flows)
 
-**FLOW B - Human Confirmation for Screening (Lan)**
-Lan đọc AI Summary và quyết định → bấm nút "Pass" hoặc "Reject" → hệ thống bật Modal `confirmation` (Yêu cầu double-check) → Lan tích chọn xác nhận → `success` → Cập nhật Pipeline Stage.
+**FLOW A: Sàng lọc CV với sự hỗ trợ của AI (AI-Assisted CV Screening)**
+Recruiter truy cập chi tiết Application → UI chuyển sang trạng thái `loading` (AI tiến hành parse dữ liệu) → Hiển thị giao diện đối chiếu: Bản gốc CV (cột trái) và Bảng phân tích AI gồm Summary, Match Score, Matched/Missing Skills (cột phải).
 
-**FLOW C - AI Question Suggestion & Scorecard (Mai)**
-Mai mở lịch phỏng vấn → `loading` (AI sinh câu hỏi từ JD/CV) → hiển thị danh sách gợi ý → Mai thao tác `edit/delete/add` thủ công trên danh sách → chốt danh sách thành Scorecard Form.
+**FLOW B: Con người kiểm soát và xác nhận (Explicit Human Confirmation)**
+Recruiter đánh giá dựa trên AI Summary → Click CTA "Pass" hoặc "Reject" → Hệ thống kích hoạt trạng thái `confirmation` (Modal yêu cầu Double-check) → Recruiter tick chọn lý do/xác nhận → UI báo `success` → Cập nhật Pipeline Stage.
 
-**FLOW D - AI Service Fallback (Lan/Mai)**
-Hệ thống gọi AI để tóm tắt CV hoặc sinh câu hỏi → `processing` → `network-error` (AI service down) → UI chuyển sang trạng thái cảnh báo + hiển thị form nhập/đánh giá thủ công để luồng công việc không bị gián đoạn.
+**FLOW C: Gợi ý câu hỏi phỏng vấn (AI Question Suggestion & Scorecard)**
+Interviewer truy cập lịch phỏng vấn → `loading` (AI sinh câu hỏi dựa trên tham chiếu JD và CV) → Hiển thị danh sách câu hỏi gợi ý → Interviewer thực hiện các thao tác `edit/delete/add` trực tiếp trên danh sách → Lưu cấu hình form Scorecard để tiến hành phỏng vấn.
 
-## 2. Required states
-`idle`, `loading` (gọi AI), `processing`, `empty` (chưa có ứng viên/câu hỏi), `network-error` (AI timeout), `confirmation` (double-confirm modal), `fallback` (form thủ công), `success`.
+**FLOW D: Xử lý ngoại lệ hệ thống (AI Service Fallback)**
+Kích hoạt tiến trình AI (tóm tắt CV/sinh câu hỏi) → `processing` → AI Service phản hồi `network-error` (Timeout/Down) → UI hiển thị thông báo lỗi (Error Banner) + Chuyển đổi mượt mà sang `fallback` state (cho phép người dùng tải form đánh giá thủ công, không làm gián đoạn luồng nghiệp vụ).
 
-## 3. Prototype assumptions
-*(Hiển thị riêng, không trộn vào requirement)*
-1. Layout màn hình Screening mặc định là Split-screen (chia đôi) để dễ đối chiếu.
-2. Nút "Pass/Reject" sẽ không đổi trạng thái ngay mà luôn kích hoạt Modal Xác nhận để chặn AI tự quyết định.
-3. Khi AI lỗi (`network-error`), các nút thao tác chính vẫn sáng (enabled) để người dùng có thể tự đọc CV và tự chấm điểm thay vì khóa toàn bộ hệ thống.
-4. Scorecard có thể lưu nháp (draft) trước khi submit chính thức.
+## 2. Các trạng thái UI bắt buộc (Required UI States)
+`idle` (mặc định), `loading` (chờ phản hồi từ AI), `processing` (xử lý dữ liệu), `empty` (chưa có dữ liệu ứng viên/câu hỏi), `network-error` (lỗi kết nối AI), `confirmation` (yêu cầu xác nhận thao tác rủi ro cao), `fallback` (ghi đè thủ công), `success` (hoàn tất luồng).
+
+## 3. Các giả định thiết kế (Prototype Assumptions)
+*(Danh sách giả định UX/UI cần được duyệt, độc lập với Requirement)*
+1. Giao diện màn hình Screening (Sàng lọc) sử dụng layout Split-view (chia đôi màn hình) để tối ưu hóa trải nghiệm đối chiếu trực quan giữa CV gốc và AI Summary.
+2. Nút CTA "Pass/Reject" không thực thi thay đổi trạng thái ngay lập tức (Immediate Action) mà luôn kích hoạt Modal Xác nhận, tuân thủ nguyên tắc ngăn chặn AI tự ra quyết định.
+3. Trong trường hợp xảy ra lỗi AI (`network-error`), các nút thao tác nghiệp vụ cốt lõi vẫn giữ trạng thái `enabled`, cho phép người dùng vận hành hệ thống theo phương thức thủ công toàn phần (Manual Override).
+4. Module Scorecard hỗ trợ tính năng lưu nháp (Auto-save/Draft) nhằm bảo vệ dữ liệu đánh giá trước khi Submit chính thức.
+
+---
