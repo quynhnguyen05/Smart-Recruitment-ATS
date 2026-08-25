@@ -1,4 +1,5 @@
 **Output #10 - Prototype Brief**
+
 **Prototype goal:** kiểm chứng 4 flow có rủi ro cao.
 **Persona:** Lan - Recruiter bận rộn.
 
