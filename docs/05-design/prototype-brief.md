@@ -1,24 +1,27 @@
-rototype goal: kiểm chứng 4 flow có rủi ro cao.
-Persona: Mai - Busy Shopper.
+# Output #10 - Prototype Brief
 
-FLOW A - Voice search
-"Tìm cà phê rang vừa dưới 200 nghìn"
-→ listening → transcript → processing → product results.
+**Prototype goal:** Kiểm chứng các luồng có rủi ro cao liên quan đến tương tác giữa AI và sự kiểm soát của con người (Human-in-the-loop).
+**Persona:** Lan - Recruiter bận rộn & Mai - Interviewer.
 
-FLOW B - Clarification
-"Thêm sữa vào giỏ"
-→ có 3 sản phẩm phù hợp → assistant hỏi chọn loại nào.
+## 1. Flows
+**FLOW A - AI-Assisted CV Screening (Lan)**
+Mở chi tiết ứng viên → `loading` (AI đang phân tích) → hiển thị chia đôi màn hình: CV gốc (trái) và AI Summary + Match Score + Reason (phải).
 
-FLOW C - Add to cart
-"Thêm 2 hộp sữa hạt Oat 1L"
-→ product resolved → stock check → cart updated → đọc lại item + quantity.
+**FLOW B - Human Confirmation for Screening (Lan)**
+Lan đọc AI Summary và quyết định → bấm nút "Pass" hoặc "Reject" → hệ thống bật Modal `confirmation` (Yêu cầu double-check) → Lan tích chọn xác nhận → `success` → Cập nhật Pipeline Stage.
 
-FLOW D - Checkout confirmation
-"Đặt đơn này"
-→ Order Draft → hiển thị items + total → nút/câu xác nhận → success.
+**FLOW C - AI Question Suggestion & Scorecard (Mai)**
+Mai mở lịch phỏng vấn → `loading` (AI sinh câu hỏi từ JD/CV) → hiển thị danh sách gợi ý → Mai thao tác `edit/delete/add` thủ công trên danh sách → chốt danh sách thành Scorecard Form.
 
-Required states:
-idle, listening, processing, no-match, ambiguous, network-error,
-out-of-stock, cart-updated, order-draft, confirm, success.
+**FLOW D - AI Service Fallback (Lan/Mai)**
+Hệ thống gọi AI để tóm tắt CV hoặc sinh câu hỏi → `processing` → `network-error` (AI service down) → UI chuyển sang trạng thái cảnh báo + hiển thị form nhập/đánh giá thủ công để luồng công việc không bị gián đoạn.
 
-Prototype assumptions phải hiển thị riêng, không được trộn vào requirement.
+## 2. Required states
+`idle`, `loading` (gọi AI), `processing`, `empty` (chưa có ứng viên/câu hỏi), `network-error` (AI timeout), `confirmation` (double-confirm modal), `fallback` (form thủ công), `success`.
+
+## 3. Prototype assumptions
+*(Hiển thị riêng, không trộn vào requirement)*
+1. Layout màn hình Screening mặc định là Split-screen (chia đôi) để dễ đối chiếu.
+2. Nút "Pass/Reject" sẽ không đổi trạng thái ngay mà luôn kích hoạt Modal Xác nhận để chặn AI tự quyết định.
+3. Khi AI lỗi (`network-error`), các nút thao tác chính vẫn sáng (enabled) để người dùng có thể tự đọc CV và tự chấm điểm thay vì khóa toàn bộ hệ thống.
+4. Scorecard có thể lưu nháp (draft) trước khi submit chính thức.
