@@ -1,1 +1,7 @@
-#TODO
+#TÂM NHƯ
+| **ID** | **Task** | **Input/context** | **AI output** | **Human verification/decision** |
+|---|---|---|---|---|
+| **A-01** | **Glossary Draft** | Đề bài + Domain Knowledge | Sinh các thuật ngữ liên quan đến ATS và AI tuyển dụng. | Nhóm rà soát, loại bỏ các thuật ngữ trùng và chỉnh định nghĩa phù hợp với workflow. |
+| **A-02** | **Thiết lập Source Priority** | Yêu cầu AI tổng hợp các quy tắc ưu tiên tài liệu. | AI đề xuất: "Khi có xung đột, AI sẽ tự động chọn tài liệu mới nhất làm chuẩn". | **Bắt lỗi logic:** Nhóm bác bỏ đề xuất này vì AI không được tự quyết định nghiệp vụ. Sửa lại nguyên tắc thành: "Không tự suy diễn, phải ưu tiên theo thứ tự, nếu không rõ phải trả lời KHÔNG ĐỦ DỮ LIỆU". |
+| **A-03** | **Tạo câu hỏi Benchmark** | Yêu cầu AI tạo 20 câu hỏi test Vault bao phủ đủ Fact, Rule, Edge-case và Unknown. | AI tạo ra 20 câu, nhưng các câu Unknown AI lại tự suy luận để trả lời (VD: "Mật khẩu admin cần 8 ký tự" dù Vault không hề ghi). | **Ép AI tuân thủ luật:** Đã nhắc lại luật Grounding. Ép AI phải trả lời chính xác chữ "KHÔNG ĐỦ DỮ LIỆU" cho các câu Q14, Q15, Q16, Q17, Q18 và Q20. |
+| **A-04** | **Test Q&A Benchmark** | Ném toàn bộ thư mục Vault vào AI, yêu cầu trả lời Q12 (Gửi Offer ngay mà không cần phỏng vấn được không?). | Ban đầu AI trả lời: "Được, nếu Match Score quá cao thì có thể linh động". | **Phát hiện AI ảo giác (Hallucination):** Bác bỏ câu trả lời. Yêu cầu AI phải đọc lại file 04-decision-log.md và BR-ATS-03. Lần thử sau AI đã trả lời đúng (Pass) là "Không được". |
