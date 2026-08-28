@@ -1,1 +1,42 @@
-#TODO
+flowchart TD
+    %% Định nghĩa các Style Classes
+    classDef aiAction fill:#E0F2FE,stroke:#0284C7,stroke-width:2px;
+    classDef humanAction fill:#FEF9C3,stroke:#CA8A04,stroke-width:2px;
+    classDef errorState fill:#FEE2E2,stroke:#DC2626,stroke-width:2px;
+    classDef successState fill:#DCFCE7,stroke:#16A34A,stroke-width:2px;
+    classDef viewState fill:#F3F4F6,stroke:#4B5563,stroke-width:1px;
+
+    %% ==========================================
+    %% LUỒNG 1: RECRUITER SCREENING (FLOW A, B, D)
+    %% ==========================================
+    StartScreening([Recruiter mở chi tiết Application]) --> AIParsing{Hệ thống gọi AI Parse CV}:::aiAction
+
+    AIParsing -- "Thành công" --> FlowA[FLOW A: Hiển thị Split-view <br/> CV gốc + AI Summary & Match Score]:::viewState
+    AIParsing -- "Lỗi mạng / Hỏng file" --> FlowD[FLOW D: AI OFFLINE <br/> Banner cảnh báo lỗi & Form nhập thủ công]:::errorState
+
+    FlowA --> MakeDecision(Click Nút Pass / Reject)
+    FlowD --> MakeDecision(Click Nút Pass / Reject)
+
+    MakeDecision --> FlowB[FLOW B: Hệ thống chặn lại <br/> Bật Confirmation Modal]:::humanAction
+    
+    FlowB -- "Click Hủy / Bấm ESC" --> FlowA
+    FlowB -- "Tick Checkbox & Click Xác nhận" --> StatusUpdated[Lưu Quyết định & Cập nhật Pipeline]:::successState
+
+    %% ==========================================
+    %% LUỒNG 2: INTERVIEWER ĐÁNH GIÁ (FLOW C)
+    %% ==========================================
+    StartInterview([Interviewer bắt đầu vòng phỏng vấn]) --> AIGenerate{Hệ thống gọi AI Sinh câu hỏi}:::aiAction
+
+    AIGenerate -- "Thành công" --> FlowC_Success[FLOW C: Hiển thị Split-view <br/> CV + List câu hỏi gợi ý + Scorecard]:::viewState
+    AIGenerate -- "Thiếu dữ liệu" --> FlowC_Empty[FLOW C: Hiển thị Split-view <br/> CV + Cảnh báo AI thiếu DL + Form câu hỏi trống]:::errorState
+
+    FlowC_Success --> EditQuestions(Edit / Thêm / Xóa câu hỏi inline)
+    FlowC_Empty --> EditQuestions
+    
+    EditQuestions --> FillScorecard(Interviewer điền điểm & ghi chú)
+
+    FillScorecard --> ActionSave(Click Lưu Đánh Giá)
+    FillScorecard --> ActionSkip(Click Bỏ Qua)
+
+    ActionSave --> ScorecardSaved[Lưu bản nháp / Submit Scorecard thành công]:::successState
+    ActionSkip --> Exit([Thoát về màn hình Danh sách Interview])
