@@ -1,4 +1,4 @@
-# Output #16 - Figma / Design System Handoff (Kinetic Talent System)
+# Output #16 - Figma / Design System Handoff
 
 ## 1. DESIGN TOKENS
 
