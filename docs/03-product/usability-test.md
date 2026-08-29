@@ -2,7 +2,7 @@
 
 **Prototype goal:** Kiểm chứng 3 luồng (flow) có rủi ro cao nhất về trải nghiệm người dùng và tính minh bạch của AI trong hệ thống Smart Recruitment.
 **Persona tham gia test:** Lan (Recruiter), Mai (Interviewer), An (Candidate).
-**Ngày test:** [Điền ngày thực hiện]
+**Ngày test:** 
 
 | Task | Success criterion | Finding (Quan sát thực tế) | Evidence (Bằng chứng) | Decision (Quyết định thiết kế) |
 | :--- | :--- | :--- | :--- | :--- |
