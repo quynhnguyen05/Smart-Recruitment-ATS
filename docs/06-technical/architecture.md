@@ -34,7 +34,6 @@ graph TD
     API --> Audit
 ```
 
-## Business Rules
 
 - LLM không truy cập DB trực tiếp; các yêu cầu AI (parse CV, tính Match Score, sinh câu hỏi phỏng vấn) đi qua AI Orchestrator — Orchestrator chuẩn bị prompt, gọi LLM, nhận JSON và chuyển cho Domain Service xử lý
 
