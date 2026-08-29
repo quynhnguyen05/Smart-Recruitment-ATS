@@ -5,16 +5,8 @@
 | **A-02** | **Viết PRD từ `requirements.md` đã confirm** | Toàn bộ 13 FR + 5 NFR + 3 BR đã chốt ở Bài 1. | PRD do AI viết có thêm Goal mới "G5: Tăng tỷ lệ ứng viên quay lại ứng tuyển lần sau nhờ trải nghiệm cá nhân hóa bằng AI" — mục tiêu này không xuất phát từ bất kỳ REQ nào đã duyệt. | Đối chiếu từng Goal trong PRD với `requirements.md` gốc, phát hiện G5 không có REQ nguồn, xóa bỏ khỏi PRD để giữ PRD nhất quán với requirement đã confirm. |
 | **A-03** | **Story slicing cho 13 User Story** | PRD đã duyệt + khung 5 Epic/13 Story đã thống nhất trong nhóm. | AI đề xuất gộp US-ATS-09 (Interviewer điền Scorecard) và US-ATS-10 (Hiring Manager xem tổng hợp Scorecard) thành một story duy nhất "Quản lý đánh giá phỏng vấn", ước lượng 5 điểm. | Nhận thấy đề xuất vi phạm Definition of Ready vì story phải ≤3 điểm và đang chứa hai flow độc lập của hai role khác nhau. Yêu cầu AI tách lại thành 2 story độc lập như thiết kế gốc. |
 
+
 #Quỳnh Như
-| **ID** | **Task** | **Input/context** | **AI output** | **Human verification/decision** |
-|---|---|---|---|---|
-| **A-01** | **Tạo Prototype cho 4 flow rủi ro cao (Output #10)** | Prototype goal kiểm chứng 4 flow: CV Screening, Human Confirmation, Question Suggestion và AI Service Fallback. Persona chính là Recruiter bận rộn. Required states gồm idle, loading, processing, empty, network-error, confirmation, fallback, success. | AI đề xuất prototype cho flow Screening nhưng ban đầu cho phép Recruiter bấm Pass/Reject và đổi trạng thái Application ngay lập tức, đồng thời khi AI gặp lỗi thì khóa các nút thao tác. | **Kiểm tra theo Prototype Brief:** Đối chiếu lại nguyên tắc Human Confirmation và AI Fallback. Bắt AI sửa flow để Pass/Reject bắt buộc đi qua Confirmation Modal + checkbox xác nhận; khi network-error thì vẫn cho phép Recruiter thao tác thủ công, không disable các nút. |
-| **A-02** | **Thiết kế Figma / Design System Handoff (Output #16)** | Design tokens, Component Inventory và UX Copy đã xác định cho Screening flow, gồm DecisionButton, MatchScoreBadge, ConfirmationModal, AISummaryCard và Input Fields. | AI tạo component specification nhưng ban đầu thiếu đầy đủ state của AISummaryCard và MatchScoreBadge, đồng thời chưa thể hiện rõ loading/fallback/error behavior trong component. | **Đối chiếu Design System:** Kiểm tra lại với Output #16 và Prototype Brief. Yêu cầu bổ sung đúng các state: AISummaryCard gồm loading/success/fallback; DecisionButton gồm default/hover/disabled/loading; MatchScoreBadge gồm high/medium/low; đồng thời cập nhật UX Copy cho AI Loading, Network Error và Empty Questions. |
-| **A-03** | **Tổng hợp Usability Findings vòng 2 (sau khi sửa prototype)** | Prototype đã sửa theo 4 flow của Output #10, ghi chú quan sát thô từ 3 người test mới. | Khi được yêu cầu tổng hợp finding từ ghi chú quan sát, AI tự suy diễn thêm một "insight" rằng "người dùng không thích màu đỏ của nút Reject", dù không có participant nào nói điều này trong ghi chú gốc. | **Kiểm tra bằng chứng:** Đối chiếu toàn bộ ghi chú quan sát gốc, không tìm thấy bằng chứng cho insight này. Loại bỏ khỏi `usability-test.md` để tránh đưa suy diễn của AI vào finding chính thức — chỉ giữ lại finding có bằng chứng quan sát trực tiếp. |
-
-
-
-### Phụ trách: Quỳnh Như - Role: UX/UI Designer
 
 | **ID** | **Task** | **Input/context** | **AI output** | **Human verification/decision** |
 | :--- | :--- | :--- | :--- | :--- |
