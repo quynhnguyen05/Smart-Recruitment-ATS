@@ -3,7 +3,9 @@
 
 | Requirement ID | Story ID | Taiga tasks | Design | Spec/ADR | PR/Commit | Test IDs | Release |
 |---|---|---|---|---|---|---|---|
-| REQ-ATS-01 | US-ATS-01 | T-011 (Job schema + API), T-012 (JobForm UI), T-013 (Publish/Close logic) | JobCard, JobForm (Figma/Components) | story-specs/US-ATS-01.md | Chưa có — kế hoạch Bài cuối | TC-01 (Create Job draft), TC-02 (Publish → OPEN), TC-03 (Closed job từ chối apply) | Chưa release — dự kiến v1.0 |
+
+| REQ-ATS-01 | US-ATS-01 | T-011 (Job schema + API), T-012 (JobForm UI), T-013 (Publish/Close logic) | JobCard, JobForm (Figma/Components) | story-specs/US-ATS-01.md | **Đã commit: Dựng UI JobCard và màn hình Danh sách Job** | TC-01 (Create Job draft), TC-02 (Publish → OPEN), TC-03 (Closed job từ chối apply) | Chưa release — dự kiến v1.0 |
+
 | REQ-ATS-02 | US-ATS-02 | T-021 (Application schema + API), T-022 (Upload CV UI), T-023 (Duplicate-apply check) | JobCard (Apply button), CV Upload Form | story-specs/US-ATS-02.md | Chưa có — kế hoạch Bài cuối | TC-04 (Apply thành công), TC-05 (Duplicate apply bị chặn), TC-06 (File sai định dạng) | Chưa release — dự kiến v1.0 |
 | REQ-ATS-03 | US-ATS-03 | T-031 (CV parser service), T-032 (Lưu parsed_data), T-033 (Fallback khi parse fail) | CVSummaryPanel (raw CV view) | story-specs/US-ATS-03.md, ADR-001 | Chưa có — kế hoạch Bài cuối | TC-07 (Parse CV chuẩn), TC-08 (Parse thiếu field), TC-09 (File hỏng) | Chưa release — dự kiến v1.0 |
 | REQ-ATS-04 | US-ATS-04 | T-041 (Prompt/schema CV Summary), T-042 (Service gọi AI), T-043 (UI hiển thị summary + label AI) | CVSummaryPanel | story-specs/US-ATS-04.md, ADR-001 | Chưa có — kế hoạch Bài cuối | TC-10 (Summary hiển thị đúng), TC-11 (AI lỗi → fallback CV gốc) | Chưa release — dự kiến v1.0 |
@@ -14,7 +16,7 @@
 | REQ-ATS-09 | US-ATS-09 | T-091 (Scorecard schema + API), T-092 (ScorecardForm UI), T-093 (Read-only sau submit) | ScorecardForm | story-specs/US-ATS-09.md | Chưa có — kế hoạch Bài cuối | TC-24 (Submit scorecard hợp lệ), TC-25 (Thiếu tiêu chí bắt buộc bị chặn), TC-26 (Interviewer sai quyền bị từ chối) | Chưa release — dự kiến v1.0 |
 | REQ-ATS-10 | US-ATS-10 | T-101 (API tổng hợp scorecard theo application), T-102 (ScorecardSummaryView UI) | ScorecardSummaryView | story-specs/US-ATS-10.md | Chưa có — kế hoạch Bài cuối | TC-27 (Xem đủ scorecard các vòng), TC-28 (Vòng chưa chấm hiển thị "pending"), TC-29 (Sai Hiring Manager bị từ chối) | Chưa release — dự kiến v1.0 |
 | REQ-ATS-11, BR-ATS-03 | US-ATS-11 | T-111 (Offer schema + confirm API), T-112 (ConfirmDialog UI), T-113 (Idempotency check), T-114 (E2E test confirm) | ConfirmDialog, PipelineStatusStepper | story-specs/US-ATS-11.md, ADR-001 | Chưa có — **ưu tiên cao nhất Bài cuối** (business-critical) | TC-30 (Confirm hợp lệ → Offer tạo đúng), TC-31 (Thiếu scorecard → 409), TC-32 (Sai role → 403), TC-33 (Double-confirm bị chặn) | Chưa release — dự kiến v1.0 |
-| REQ-ATS-12 | US-ATS-12 | T-121 (API xem trạng thái theo candidate), T-122 (PipelineStatusStepper UI) | PipelineStatusStepper | story-specs/US-ATS-12.md | Chưa có — kế hoạch Bài cuối | TC-34 (Xem đúng trạng thái), TC-35 (Candidate khác không xem được) | Chưa release — dự kiến v1.0 |
+| REQ-ATS-12 | US-ATS-12 | T-121 (API xem trạng thái theo candidate), T-122 (PipelineStatusStepper UI) | PipelineStatusStepper | story-specs/US-ATS-12.md | **Đã commit: Dựng UI Pipeline Status cho Candidate** | TC-34 (Xem đúng trạng thái), TC-35 (Candidate khác không xem được) | Chưa release — dự kiến v1.0 |
 | REQ-ATS-13 | US-ATS-13 | T-131 (User CRUD API + role), T-132 (Admin UI quản lý user) | User Management Table (Figma/Handoff) | story-specs/US-ATS-13.md | Chưa có — kế hoạch Bài cuối | TC-36 (Tạo user + gán role), TC-37 (Non-admin bị từ chối truy cập) | Chưa release — dự kiến v1.0 |
 
 ---
