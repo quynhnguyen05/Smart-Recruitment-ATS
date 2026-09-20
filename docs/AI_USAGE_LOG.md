@@ -15,6 +15,7 @@
 | **A-UI-03** | **Tổng hợp Usability Findings vòng 2 (sau khi sửa prototype)** | Prototype đã sửa theo 4 flow của Output #10, ghi chú quan sát thô từ 3 người test mới. | Khi được yêu cầu tổng hợp finding từ ghi chú quan sát, AI tự suy diễn thêm một "insight" rằng "người dùng không thích màu đỏ của nút Reject", dù không có participant nào nói điều này trong ghi chú gốc. | **Kiểm tra bằng chứng:** Đối chiếu toàn bộ ghi chú quan sát gốc, không tìm thấy bằng chứng cho insight này. Loại bỏ khỏi `usability-test.md` để tránh đưa suy diễn của AI vào finding chính thức — chỉ giữ lại finding có bằng chứng quan sát trực tiếp. |
 | **A-UI-04** | **Thiết kế Auto Layout cho Flow C - Scorecard (US-ATS-09)** | Giao diện tĩnh Split-view của Flow C, yêu cầu thiết lập Auto Layout để màn hình co giãn responsive. | AI hướng dẫn kỹ thuật bọc Auto Layout "Bottom-up" nhưng đề xuất giữ nguyên thanh Sidebar mở rộng như các luồng trước đó để "đồng nhất". | **Đánh giá lại UX:** Nhận thấy Form Scorecard cần nhiều chiều ngang, nếu giữ Sidebar to sẽ làm hẹp trình xem CV. **Quyết định bác bỏ AI**, tự thiết lập Sidebar sang trạng thái Thu gọn (Collapsed) để tối ưu không gian làm việc cho Interviewer. |
 
+|Task: Cấu hình môi trường Frontend; Lỗi của AI: Hướng dẫn thiếu bước clear cache .next; Cách em kiểm chứng & sửa: Tự phát hiện file .env.example sai chỗ, tự chạy lệnh xóa bộ nhớ đệm trước khi generate lại Prisma.|
 
 #Tâm Như
 | **ID** | **Task** | **Input/context** | **AI output** | **Human verification/decision** |
