@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   const { email, password } = parsed.data;
   const user = await prisma.user.findUnique({ where: { email } });
 
-  if (!user) {
+  if (!user || user.disabled) {
     return NextResponse.json(
       { error: { code: 'INVALID_CREDENTIALS', message: 'Email hoặc mật khẩu không đúng' } },
       { status: 401 }
