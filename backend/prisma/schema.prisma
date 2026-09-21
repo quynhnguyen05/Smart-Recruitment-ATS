@@ -101,17 +101,15 @@ model Application {
 }
 
 model MatchResult {
-  id            String             @id @default(uuid())
-  applicationId String             @map("application_id")
-  application   Application        @relation(fields: [applicationId], references: [id])
-  status        MatchResultStatus
-  matchScore    Int?               @map("match_score")
-  matchedSkills Json?              @map("matched_skills")
-  missingSkills Json?              @map("missing_skills")
-  explanation   String?
-  createdAt     DateTime           @default(now()) @map("created_at")
-
-  @@map("match_results")
+  id            String      @id @default(uuid())
+  applicationId String      @unique
+  application   Application @relation(fields: [applicationId], references: [id])
+  matchScore    Int?
+  matchedSkills Json?
+  missingSkills Json?
+  confidence    String?
+  status        String      // OK | INSUFFICIENT_DATA | ERROR
+  createdAt     DateTime    @default(now())
 }
 
 model InterviewRound {

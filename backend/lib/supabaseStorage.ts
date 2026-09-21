@@ -24,8 +24,8 @@ export async function uploadCV(file: File, applicationId: string): Promise<strin
     throw new FileValidationError('File vượt quá giới hạn 5MB');
   }
 
-  const ext = file.name.split('.').pop();
-  const path = `${applicationId}.${ext}`;
+  const ext = (file.name.includes('.') ? file.name.split('.').pop() : 'bin') || 'bin';
+  const path = `${applicationId}.${ext.toLowerCase()}`;
 
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
