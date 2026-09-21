@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import jwt from 'jsonwebtoken';
 import { requireRole } from '@/lib/requireRole';
 import { withErrorHandler } from '@/lib/withErrorHandler';
 import { ValidationError } from '@/lib/errors';
@@ -32,4 +33,28 @@ export const POST = withErrorHandler(async (req: Request) => {
   });
 
   return NextResponse.json(job);
+});
+
+export const GET = withErrorHandler(async (req: Request) => {
+  const authHeader = req.headers.get('authorization');
+
+  let canSeeAll = false;
+  if (authHeader?.startsWith('Bearer ')) {
+    try {
+      const payload = jwt.verify(
+        authHeader.replace(/^Bearer\s+/i, ''),
+        process.env.JWT_SECRET!
+      ) as { role: string };
+      canSeeAll = ['RECRUITER', 'ADMIN'].includes(payload.role);
+    } catch {
+      // token sai/hết hạn -> coi như chưa đăng nhập
+    }
+  }
+
+  const jobs = await prisma.jobPosting.findMany({
+    where: canSeeAll ? {} : { status: 'PUBLISHED' },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return NextResponse.json(jobs);
 });

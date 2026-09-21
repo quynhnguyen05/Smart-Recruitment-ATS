@@ -87,6 +87,7 @@ model Application {
   job                 JobPosting         @relation(fields: [jobId], references: [id])
   candidateId         String             @map("candidate_id")
   cvUrl               String             @map("cv_url")
+  cvText              String?            @map("cv_text")
   status              ApplicationStatus  @default(NEW)
   latestMatchResultId String?            @map("latest_match_result_id")
   appliedAt           DateTime           @default(now()) @map("applied_at")
