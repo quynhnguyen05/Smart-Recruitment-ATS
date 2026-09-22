@@ -25,6 +25,7 @@
 | A-UI-09 | Dựng Form Nộp CV (US-ATS-02) | Yêu cầu AI code form upload file CV bằng Tailwind. | AI không xử lý chặt chẽ logic validate file trên Frontend, cho phép upload mọi định dạng. | Kiểm soát NFR: Dựa vào requirement NFR, em đã tự code bổ sung hàm kiểm tra selectedFile.type chỉ chấp nhận PDF/DOCX và giới hạn dung lượng < 5MB. Đồng thời tự thêm hiệu ứng spinner loading xoay vòng để đáp ứng UI theo Usability Test (T1). |
 
 | A-UI-10 | Dựng Form Lịch Phỏng Vấn (US-ATS-07) | Dựng form nhập ngày giờ và chọn Interviewer. | AI code form lưu trực tiếp mà không có bước validate logic nghiệp vụ. | Kiểm soát Business Rule: Căn cứ theo yêu cầu hệ thống không được cho phép xếp trùng lịch, em đã tự code thêm cơ chế Conflict Check giả lập. Chặn lưu form và hiển thị cảnh báo đỏ nếu phát hiện Interviewer bận vào khung giờ đó. |
+| A-UI-11 | Dựng UI Duyệt CV & Scorecard Summary | Code giao diện hiển thị AI Match Score và Bảng điểm phỏng vấn. | AI tự thiết kế màn hình Duyệt CV dạng cuộn dọc (scroll) khiến việc đối chiếu khó khăn. | Tối ưu UX: Tái sử dụng thiết kế Split-view 60/40 đã thành công ở màn hình Chấm điểm để áp dụng cho màn hình Duyệt CV, đảm bảo tính nhất quán của hệ thống. Đồng thời thiết kế Confirm Dialog cho luồng Reject ứng viên. |
 
 #Tâm Như
 | **ID** | **Task** | **Input/context** | **AI output** | **Human verification/decision** |
