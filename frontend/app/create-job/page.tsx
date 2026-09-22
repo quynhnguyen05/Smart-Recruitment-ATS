@@ -14,6 +14,10 @@ export default function CreateJobPage() {
       return;
     }
     
+    // Thêm 2 dòng này để xóa sạch dữ liệu cũ trước khi chuyển trang
+    setError("");
+    setFormData({ title: "", department: "", location: "", description: "" });
+    
     alert("Đã tạo Job Posting thành công (Trạng thái: DRAFT)");
     router.push("/dashboard");
   };

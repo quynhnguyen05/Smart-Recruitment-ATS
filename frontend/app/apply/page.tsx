@@ -2,6 +2,7 @@
 import React, { useState, useRef } from "react";
 
 export default function ApplyJobPage() {
+  const [name, setName] = useState(""); // Quản lý state của Họ và tên
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -12,9 +13,12 @@ export default function ApplyJobPage() {
     setError("");
     
     if (selectedFile) {
-      // Validate NFR: Chỉ nhận PDF/DOCX
-      if (selectedFile.type !== "application/pdf" && 
-          !selectedFile.type.includes("wordprocessingml")) {
+      // Validate NFR: Chỉ nhận PDF/DOCX (Phòng hờ nếu user cố tình kéo thả file sai)
+      if (
+        selectedFile.type !== "application/pdf" && 
+        !selectedFile.type.includes("wordprocessingml") &&
+        !selectedFile.type.includes("msword")
+      ) {
         setError("Chỉ hỗ trợ định dạng PDF hoặc DOCX.");
         setFile(null);
         return;
@@ -31,6 +35,12 @@ export default function ApplyJobPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!name.trim()) {
+      setError("Vui lòng nhập họ và tên.");
+      return;
+    }
+    
     if (!file) {
       setError("Vui lòng đính kèm CV của bạn.");
       return;
@@ -42,8 +52,13 @@ export default function ApplyJobPage() {
     setTimeout(() => {
       setIsSubmitting(false);
       alert("Nộp CV thành công! AI đang tiến hành trích xuất dữ liệu.");
+      
+      // Dọn dẹp trắng form sau khi nộp thành công
+      setName("");
       setFile(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }, 3000);
   };
 
@@ -67,6 +82,8 @@ export default function ApplyJobPage() {
             <input
               type="text"
               required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#1D4ED8] focus:border-[#1D4ED8]"
               placeholder="Nguyễn Văn A"
             />
@@ -84,7 +101,13 @@ export default function ApplyJobPage() {
                 <div className="flex text-sm text-gray-600 justify-center">
                   <label className="relative cursor-pointer bg-white rounded-md font-medium text-[#1D4ED8] hover:text-blue-800 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#1D4ED8]">
                     <span>Tải file lên</span>
-                    <input ref={fileInputRef} type="file" className="sr-only" onChange={handleFileChange} accept=".pdf,.doc,.docx" />
+                    <input 
+                      ref={fileInputRef} 
+                      type="file" 
+                      className="sr-only" 
+                      onChange={handleFileChange} 
+                      accept="application/pdf, .doc, .docx, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
+                    />
                   </label>
                 </div>
                 <p className="text-xs text-gray-500">Tối đa 5MB</p>

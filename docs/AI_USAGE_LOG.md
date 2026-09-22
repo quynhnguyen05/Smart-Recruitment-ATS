@@ -21,6 +21,11 @@
 | A-UI-07 | Dựng Modal Xác nhận Offer (US-ATS-11) | Yêu cầu AI code popup xác nhận quyết định Offer. | AI sinh ra form có nút OK/Cancel cơ bản, màu sắc trung tính (xanh/xám). | Quyết định UX & Security: Căn cứ theo Usability Test (T4), form cơ bản dễ gây lỗi click nhầm. Bắt buộc AI thiết kế lại Modal với viền màu đỏ (color.danger) và thêm input yêu cầu gõ chữ "XAC NHAN" để kích hoạt nút Submit (Explicit Confirmation). |
 
 | A-UI-08 | Fix lỗi Input Modal Xác nhận Offer | Test chức năng gõ chữ XAC NHAN của form do AI sinh ra. | AI dùng class CSS uppercase để ép chữ in hoa nhưng quên xử lý ngầm dữ liệu trong logic React (onChange), dẫn đến việc gõ chữ không kích hoạt được nút Submit. | Tự Debug & Sửa lỗi: Em đã phát hiện ra lỗ hổng logic này trong quá trình test tay (Manual Test). Em tự sửa code bằng cách thêm hàm .toUpperCase() vào event onChange để đồng bộ dữ liệu thật với UI. |
+
+| A-UI-09 | Dựng Form Nộp CV (US-ATS-02) | Yêu cầu AI code form upload file CV bằng Tailwind. | AI không xử lý chặt chẽ logic validate file trên Frontend, cho phép upload mọi định dạng. | Kiểm soát NFR: Dựa vào requirement NFR, em đã tự code bổ sung hàm kiểm tra selectedFile.type chỉ chấp nhận PDF/DOCX và giới hạn dung lượng < 5MB. Đồng thời tự thêm hiệu ứng spinner loading xoay vòng để đáp ứng UI theo Usability Test (T1). |
+
+| A-UI-10 | Dựng Form Lịch Phỏng Vấn (US-ATS-07) | Dựng form nhập ngày giờ và chọn Interviewer. | AI code form lưu trực tiếp mà không có bước validate logic nghiệp vụ. | Kiểm soát Business Rule: Căn cứ theo yêu cầu hệ thống không được cho phép xếp trùng lịch, em đã tự code thêm cơ chế Conflict Check giả lập. Chặn lưu form và hiển thị cảnh báo đỏ nếu phát hiện Interviewer bận vào khung giờ đó. |
+
 #Tâm Như
 | **ID** | **Task** | **Input/context** | **AI output** | **Human verification/decision** |
 |---|---|---|---|---|
