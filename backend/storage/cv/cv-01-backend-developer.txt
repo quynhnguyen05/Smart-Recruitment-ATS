@@ -1,0 +1,17 @@
+CV-01
+Ho va ten: Nguyen Minh Anh
+Vi tri ung tuyen: Backend Developer
+Years of experience: 3
+
+Skills:
+- Java
+- Spring Boot
+- REST API
+- PostgreSQL
+- Redis
+- Docker
+- Git
+- Microservices
+
+Education:
+Cu nhan Cong nghe Thong tin, Dai hoc Bach Khoa Da Nang

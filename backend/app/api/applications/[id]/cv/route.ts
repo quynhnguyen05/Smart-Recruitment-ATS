@@ -21,7 +21,7 @@ export const GET = withErrorHandler(async (req: Request, ctx: { params: Promise<
   const isRemoteFile = /^https?:\/\//i.test(application.cvUrl);
   const fileName = isRemoteFile ? path.basename(new URL(application.cvUrl).pathname) : path.basename(application.cvUrl);
   const extension = path.extname(fileName).toLowerCase();
-  const contentType = extension === '.pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  const contentType = extension === '.pdf' ? 'application/pdf' : extension === '.txt' ? 'text/plain; charset=utf-8' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
   if (isRemoteFile) {
     const remoteResponse = await fetch(application.cvUrl);

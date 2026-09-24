@@ -24,7 +24,13 @@ export const GET = withErrorHandler(async (req: Request) => {
     include: { application: { include: { job: true } }, questions: true, scorecard: true },
     orderBy: { scheduledAt: 'asc' },
   });
-  return NextResponse.json(interviews);
+  const candidateIds = [...new Set(interviews.map((interview) => interview.application.candidateId))];
+  const candidates = await prisma.user.findMany({ where: { id: { in: candidateIds } }, select: { id: true, email: true } });
+  const candidateEmails = new Map(candidates.map((candidate) => [candidate.id, candidate.email]));
+  return NextResponse.json(interviews.map((interview) => ({
+    ...interview,
+    candidateEmail: candidateEmails.get(interview.application.candidateId) || 'Không xác định',
+  })));
 });
 
 export const POST = withErrorHandler(async (req: Request) => {

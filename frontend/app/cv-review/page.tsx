@@ -12,15 +12,25 @@ type Application = {
   job: { title: string };
 };
 
+type MatchResult = {
+  status: string;
+  matchScore: number | null;
+  matchedSkills: string[];
+  missingSkills: string[];
+  explanation: string;
+};
+
 export default function CVReviewPage() {
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [applications, setApplications] = useState<Application[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [cvUrl, setCvUrl] = useState("");
   const [cvContentType, setCvContentType] = useState("");
+  const [cvText, setCvText] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isCvLoading, setIsCvLoading] = useState(false);
+  const [match, setMatch] = useState<MatchResult | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -39,16 +49,21 @@ export default function CVReviewPage() {
     // Loading state is intentionally synchronized with the selected application.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsCvLoading(true);
+    apiFetch<MatchResult>(`/api/applications/${application.id}/match`)
+      .then(setMatch)
+      .catch(() => setMatch(null));
     const token = localStorage.getItem("token");
     fetch(`/api/applications/${application.id}/cv`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
       .then((response) => {
         if (!response.ok) throw new Error("Không thể tải file CV");
-        setCvContentType(response.headers.get("content-type") || "");
-        return response.blob();
+        const contentType = response.headers.get("content-type") || "";
+        setCvContentType(contentType);
+        return response.blob().then((blob) => ({ blob, contentType }));
       })
-      .then((blob) => {
+      .then(({ blob, contentType }) => {
         const objectUrl = URL.createObjectURL(blob);
         setCvUrl(objectUrl);
+        if (contentType.startsWith("text/plain")) blob.text().then(setCvText);
       })
       .catch((loadError) => setError(loadError instanceof Error ? loadError.message : "Không thể tải file CV"))
       .finally(() => setIsCvLoading(false));
@@ -71,11 +86,11 @@ export default function CVReviewPage() {
       {/* CỘT TRÁI: 60% Hiển thị CV gốc */}
       <div className="w-[60%] bg-gray-100 border-r border-gray-200 p-4 flex flex-col">
         <h2 className="text-lg font-bold text-gray-700 mb-2">CV Ứng viên</h2>
-        {isLoading ? <p className="text-gray-500">Đang tải danh sách đơn...</p> : applications.length > 0 && <select value={selectedId} onChange={(event) => { setCvUrl(""); setCvContentType(""); setSelectedId(event.target.value); }} className="mb-2 border rounded-md p-2">
+        {isLoading ? <p className="text-gray-500">Đang tải danh sách đơn...</p> : applications.length > 0 && <select value={selectedId} onChange={(event) => { setCvUrl(""); setCvContentType(""); setCvText(""); setMatch(null); setSelectedId(event.target.value); }} className="mb-2 border rounded-md p-2">
           {applications.map((application) => <option key={application.id} value={application.id}>{application.candidateEmail} - {application.job.title} - {application.status}</option>)}
         </select>}
         <div className="flex-1 bg-white border border-gray-300 shadow-sm rounded-md flex items-center justify-center">
-          {isCvLoading ? <p className="text-gray-500">Đang tải CV...</p> : cvUrl && cvContentType === "application/pdf" ? <iframe src={cvUrl} title="CV ứng viên" className="w-full h-full" /> : cvUrl ? <div className="text-center p-6"><p className="text-gray-600 mb-4">File DOCX không hỗ trợ xem trực tiếp trong trình duyệt.</p><a href={cvUrl} download className="inline-block px-4 py-2 bg-blue-700 text-white rounded-md">Tải CV xuống</a></div> : <p className="text-gray-400 font-medium">{error || (applications.length === 0 ? "Chưa có đơn ứng tuyển" : "Chưa có file CV")}</p>}
+          {isCvLoading ? <p className="text-gray-500">Đang tải CV...</p> : cvText ? <pre className="w-full h-full overflow-auto whitespace-pre-wrap p-6 text-sm text-gray-700">{cvText}</pre> : cvUrl && cvContentType === "application/pdf" ? <iframe src={cvUrl} title="CV ứng viên" className="w-full h-full" /> : cvUrl ? <div className="text-center p-6"><p className="text-gray-600 mb-4">File DOCX không hỗ trợ xem trực tiếp trong trình duyệt.</p><a href={cvUrl} download className="inline-block px-4 py-2 bg-blue-700 text-white rounded-md">Tải CV xuống</a></div> : <p className="text-gray-400 font-medium">{error || (applications.length === 0 ? "Chưa có đơn ứng tuyển" : "Chưa có file CV")}</p>}
         </div>
       </div>
 
@@ -86,21 +101,20 @@ export default function CVReviewPage() {
         {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md">{error}</div>}
 
         {/* Khối Điểm AI (US-ATS-05) */}
-        <div className="mb-6 p-5 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
+        <div className="mb-6 p-5 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
           <div>
-            <h3 className="font-bold text-green-800 text-lg">AI Match Score</h3>
-            <p className="text-sm text-green-700 mt-1">Phù hợp cao với yêu cầu (JD)</p>
+            <h3 className="font-bold text-blue-800 text-lg">AI Match Score</h3>
+            <p className="text-sm text-blue-700 mt-1">{match?.explanation || "Đang phân tích nội dung CV..."}</p>
           </div>
-          <div className="text-4xl font-extrabold text-green-600">92%</div>
+          <div className="text-4xl font-extrabold text-blue-700">{match?.matchScore === null || match?.matchScore === undefined ? "N/A" : `${match.matchScore}%`}</div>
         </div>
 
         {/* Khối AI Phân tích */}
         <div className="mb-8 p-4 border border-gray-200 rounded-md">
           <h4 className="font-semibold text-gray-800 mb-3">Phân tích kỹ năng:</h4>
           <ul className="space-y-2 text-sm text-gray-600">
-            <li className="flex gap-2">✅ <span><strong>Kỹ năng có:</strong> React, Tailwind, Phân tích nghiệp vụ.</span></li>
-            <li className="flex gap-2">✅ <span><strong>Kinh nghiệm:</strong> Hệ thống quản lý, Đồ án ATS.</span></li>
-            <li className="flex gap-2">⚠️ <span><strong>Cần hỏi thêm:</strong> Quy trình làm việc Agile/Scrum.</span></li>
+            <li className="flex gap-2">✅ <span><strong>Kỹ năng có:</strong> {match?.matchedSkills.join(", ") || "Chưa xác định"}</span></li>
+            <li className="flex gap-2">⚠️ <span><strong>Cần hỏi thêm:</strong> {match?.missingSkills.join(", ") || "Không có dữ liệu thiếu"}</span></li>
           </ul>
         </div>
 

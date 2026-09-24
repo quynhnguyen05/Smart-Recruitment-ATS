@@ -19,7 +19,7 @@ export const GET = withErrorHandler(async (req: Request, ctx: { params: Promise<
 });
 
 export const POST = withErrorHandler(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
-  const authResult = requireRole(['ADMIN', 'INTERVIEWER', 'HIRING_MANAGER'])(req);
+  const authResult = requireRole(['ADMIN', 'RECRUITER', 'INTERVIEWER', 'HIRING_MANAGER'])(req);
   if (authResult instanceof NextResponse) return authResult;
   const { id } = await ctx.params;
   const parsed = scorecardSchema.safeParse(await req.json());
