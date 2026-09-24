@@ -1,14 +1,62 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch } from "@/core/api";
+
+type Interview = {
+  application: { id: string; cvUrl: string; job: { title: string } };
+};
+
+type MatchResult = {
+  status: string;
+  matchScore: number | null;
+  matchedSkills: string[];
+  missingSkills: string[];
+  explanation: string;
+};
 
 export default function ScorecardPage() {
   const [technicalScore, setTechnicalScore] = useState("");
   const [notes, setNotes] = useState("");
-  const [interviewId] = useState(() => typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("interviewId") || "");
+  const [interviewId, setInterviewId] = useState("");
+  const [interview, setInterview] = useState<Interview | null>(null);
+  const [match, setMatch] = useState<MatchResult | null>(null);
+  const [cvUrl, setCvUrl] = useState("");
+  const [cvContentType, setCvContentType] = useState("");
+  const [cvText, setCvText] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    // Query parameters are client-only and must be read after hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setInterviewId(new URLSearchParams(window.location.search).get("interviewId") || "");
+  }, []);
+
+  useEffect(() => {
+    if (!interviewId) return;
+    const token = localStorage.getItem("token");
+    apiFetch<Interview>(`/api/interviews/${interviewId}`)
+      .then(async (interviewData) => {
+        setInterview(interviewData);
+        const applicationId = interviewData.application.id;
+        const matchData = await apiFetch<MatchResult>(`/api/applications/${applicationId}/match`);
+        setMatch(matchData);
+        return fetch(`/api/applications/${applicationId}/cv`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Không thể tải CV ứng viên");
+        const contentType = response.headers.get("content-type") || "";
+        setCvContentType(contentType);
+        return response.blob().then((blob) => ({ blob, contentType }));
+      })
+      .then(({ blob, contentType }) => {
+        setCvUrl(URL.createObjectURL(blob));
+        if (contentType.startsWith("text/plain")) blob.text().then(setCvText);
+      })
+      .catch((loadError) => setError(loadError instanceof Error ? loadError.message : "Không thể tải dữ liệu scorecard"));
+  }, [interviewId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,14 +64,11 @@ export default function ScorecardPage() {
     setIsSubmitting(true);
     try {
       if (!interviewId) throw new Error("Thiếu interviewId để lưu scorecard");
-      await fetch(`/api/interviews/${interviewId}/scorecard`, {
+      await apiFetch(`/api/interviews/${interviewId}/scorecard`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token") || ""}` },
         body: JSON.stringify({ score: Number(technicalScore), notes }),
-      }).then(async (response) => {
-        if (!response.ok) { const data = await response.json(); throw new Error(data.error?.message || "Không thể lưu scorecard"); }
       });
-      router.push("/scorecard-summary");
+      router.replace("/scorecard-summary");
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Không thể lưu scorecard");
     } finally {
@@ -36,10 +81,9 @@ export default function ScorecardPage() {
       
       {/* CỘT TRÁI: 60% - Xem CV Ứng viên */}
       <div className="w-[60%] bg-gray-100 border-r border-gray-200 p-4 flex flex-col">
-        <h2 className="text-lg font-bold text-gray-700 mb-2">CV Ứng viên: Nguyễn Văn A</h2>
-        {/* Khu vực mô phỏng hiển thị file PDF */}
+        <h2 className="text-lg font-bold text-gray-700 mb-2">CV Ứng viên: {interview?.application.job.title || "Đang tải..."}</h2>
         <div className="flex-1 bg-white border border-gray-300 shadow-sm rounded-md flex items-center justify-center">
-          <p className="text-gray-400 font-medium">[Khu vực hiển thị File PDF của CV]</p>
+          {cvText ? <pre className="w-full h-full overflow-auto whitespace-pre-wrap p-6 text-sm text-gray-700">{cvText}</pre> : cvUrl && cvContentType === "application/pdf" ? <iframe src={cvUrl} title="CV ứng viên" className="w-full h-full" /> : cvUrl ? <div className="text-center p-6"><p className="text-gray-600 mb-4">DOCX không hỗ trợ xem trực tiếp.</p><a href={cvUrl} download className="px-4 py-2 bg-blue-700 text-white rounded-md">Tải CV xuống</a></div> : <p className="text-gray-400 font-medium">{error || "Đang tải CV..."}</p>}
         </div>
       </div>
 
@@ -47,6 +91,12 @@ export default function ScorecardPage() {
       <div className="w-[40%] bg-white p-6 overflow-y-auto shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)]">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Bảng đánh giá (Scorecard)</h2>
         {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md">{error}</div>}
+        {match && <div className={`mb-6 p-4 rounded-md border ${match.status === "OK" ? "bg-blue-50 border-blue-200" : "bg-yellow-50 border-yellow-200"}`}>
+          <div className="flex items-center justify-between"><h3 className="font-semibold text-[#1D4ED8]">AI Match Score</h3><strong className="text-3xl">{match.matchScore === null ? "N/A" : `${match.matchScore}%`}</strong></div>
+          <p className="text-sm text-gray-700 mt-2">{match.explanation}</p>
+          <p className="text-sm text-green-700 mt-2"><strong>Phù hợp:</strong> {match.matchedSkills.join(", ") || "Không có"}</p>
+          <p className="text-sm text-red-700 mt-1"><strong>Còn thiếu:</strong> {match.missingSkills.join(", ") || "Không có"}</p>
+        </div>}
 
         {/* Khối Gợi ý từ AI (US-ATS-08) */}
         <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
@@ -55,8 +105,8 @@ export default function ScorecardPage() {
             <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Dựa trên JD & CV</span>
           </div>
           <ul className="list-disc pl-5 text-sm text-gray-700 space-y-1">
-            <li>Ứng viên có ghi kinh nghiệm ReactJS, hãy hỏi sâu về Custom Hooks.</li>
-            <li>Trong CV thiếu kỹ năng quản lý state (Redux), hãy kiểm tra phần này.</li>
+            <li>Câu hỏi nên tập trung vào các kỹ năng còn thiếu trong phần AI phân tích.</li>
+            <li>Match score chỉ hỗ trợ quyết định, interviewer vẫn cần đánh giá thực tế.</li>
           </ul>
         </div>
 
@@ -93,10 +143,10 @@ export default function ScorecardPage() {
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !interviewId}
             className="w-full mt-4 bg-[#1D4ED8] hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-md transition-colors disabled:bg-gray-400"
           >
-            {isSubmitting ? "Đang lưu..." : "Lưu đánh giá (Submit)"}
+            {isSubmitting ? "Đang lưu..." : !interviewId ? "Đang tải vòng phỏng vấn..." : "Lưu đánh giá (Submit)"}
           </button>
         </form>
       </div>

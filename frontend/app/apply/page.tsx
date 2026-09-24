@@ -32,11 +32,10 @@ export default function ApplyJobPage() {
     
     if (selectedFile) {
       // Validate NFR: Chỉ nhận PDF/DOCX (Phòng hờ nếu user cố tình kéo thả file sai)
-      if (
-        selectedFile.type !== "application/pdf" && 
-        !selectedFile.type.includes("wordprocessingml") &&
-        !selectedFile.type.includes("msword")
-      ) {
+      const fileName = selectedFile.name.toLowerCase();
+      const isPdf = selectedFile.type === "application/pdf" || fileName.endsWith(".pdf");
+      const isDocx = selectedFile.type.includes("wordprocessingml") || selectedFile.type.includes("msword") || fileName.endsWith(".doc") || fileName.endsWith(".docx");
+      if (!isPdf && !isDocx) {
         setError("Chỉ hỗ trợ định dạng PDF hoặc DOCX.");
         setFile(null);
         return;
@@ -53,6 +52,8 @@ export default function ApplyJobPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const queryJobId = new URLSearchParams(window.location.search).get("jobId") || "";
+    const selectedJobId = jobId || queryJobId || jobs[0]?.id || "";
     
     if (!name.trim()) {
       setError("Vui lòng nhập họ và tên.");
@@ -64,7 +65,7 @@ export default function ApplyJobPage() {
       return;
     }
 
-    if (!jobId) {
+    if (!selectedJobId) {
       setError("Hiện chưa có job đang mở để ứng tuyển.");
       return;
     }
@@ -73,7 +74,7 @@ export default function ApplyJobPage() {
 
     try {
       const formData = new FormData();
-      formData.append("jobId", jobId);
+      formData.append("jobId", selectedJobId);
       formData.append("cv", file);
       await apiFetch("/api/applications", {
         method: "POST",

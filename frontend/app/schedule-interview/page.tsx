@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { apiFetch } from "@/core/api";
 
 type Interviewer = { id: string; email: string };
+type Application = { id: string; candidateEmail: string; job: { title: string }; status: string };
 
 export default function ScheduleInterviewPage() {
   const [date, setDate] = useState("");
@@ -13,13 +14,27 @@ export default function ScheduleInterviewPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [interviewers, setInterviewers] = useState<Interviewer[]>([]);
-  const [applicationId] = useState(() => typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("applicationId") || "");
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [applicationId, setApplicationId] = useState("");
   const router = useRouter();
 
   useEffect(() => {
-    apiFetch<Interviewer[]>("/api/interviewers")
-      .then(setInterviewers)
-      .catch((loadError) => setError(loadError instanceof Error ? loadError.message : "Không thể tải interviewer"));
+    Promise.all([
+      apiFetch<Interviewer[]>("/api/interviewers"),
+      apiFetch<Application[]>("/api/applications"),
+    ])
+      .then(([availableInterviewers, availableApplications]) => {
+        setInterviewers(availableInterviewers);
+        setApplications(availableApplications);
+        const requestedApplicationId = new URLSearchParams(window.location.search).get("applicationId");
+        // The URL-selected application is client-only and is applied after hydration.
+        if (requestedApplicationId && availableApplications.some((item) => item.id === requestedApplicationId)) {
+          setApplicationId(requestedApplicationId);
+        } else if (availableApplications[0]) {
+          setApplicationId(availableApplications[0].id);
+        }
+      })
+      .catch((loadError) => setError(loadError instanceof Error ? loadError.message : "Không thể tải dữ liệu lịch phỏng vấn"));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,7 +43,7 @@ export default function ScheduleInterviewPage() {
     setIsLoading(true);
 
     try {
-      if (!applicationId) throw new Error("Thiếu applicationId để lên lịch phỏng vấn");
+      if (!applicationId) throw new Error("Vui lòng chọn hồ sơ ứng viên");
       const interview = await apiFetch<{ id: string }>("/api/interviews", {
         method: "POST",
         body: JSON.stringify({ applicationId, interviewerId: interviewer, scheduledAt: new Date(`${date}T${time}:00`).toISOString() }),
@@ -59,6 +74,24 @@ export default function ScheduleInterviewPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Hồ sơ ứng viên <span className="text-red-500">*</span>
+            </label>
+            <select
+              required
+              value={applicationId}
+              onChange={(event) => setApplicationId(event.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md"
+            >
+              <option value="">Chọn hồ sơ cần phỏng vấn...</option>
+              {applications.map((application) => (
+                <option key={application.id} value={application.id}>
+                  {application.candidateEmail} - {application.job.title} ({application.status})
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
