@@ -1,4 +1,7 @@
+"use client";
+
 import React from 'react';
+import { useRouter } from 'next/navigation';
 
 interface JobCardProps {
   title: string;
@@ -6,9 +9,11 @@ interface JobCardProps {
   location: string;
   status: 'OPEN' | 'CLOSED' | 'DRAFT';
   applicantsCount: number;
+  jobId: string;
 }
 
-export default function JobCard({ title, department, location, status, applicantsCount }: JobCardProps) {
+export default function JobCard({ title, department, location, status, applicantsCount, jobId }: JobCardProps) {
+  const router = useRouter();
   // Mapping màu sắc chuẩn Design Tokens (Output #16)
   const statusColors = {
     OPEN: 'bg-[#059669] text-white', 
@@ -32,7 +37,7 @@ export default function JobCard({ title, department, location, status, applicant
         <span className="text-sm text-gray-600">
           <strong className="text-gray-900">{applicantsCount}</strong> ứng viên
         </span>
-        <button className="text-sm text-[#1D4ED8] font-medium hover:underline">
+        <button onClick={() => router.push(`/jobs/${jobId}`)} className="text-sm text-[#1D4ED8] font-medium hover:underline">
           Xem chi tiết →
         </button>
       </div>

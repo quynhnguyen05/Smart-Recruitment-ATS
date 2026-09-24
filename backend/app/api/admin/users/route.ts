@@ -53,6 +53,7 @@ export const GET = withErrorHandler(async (req: Request) => {
       id: true,
       email: true,
       role: true,
+      disabled: true,
       createdAt: true,
     },
     orderBy: { createdAt: 'desc' },

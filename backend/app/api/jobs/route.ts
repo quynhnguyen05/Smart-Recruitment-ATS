@@ -13,6 +13,21 @@ const jobSchema = z.object({
   requirements: z.string().min(1),
 });
 
+export const GET = withErrorHandler(async (req: Request) => {
+  const authResult = requireRole(['ADMIN', 'RECRUITER', 'INTERVIEWER', 'HIRING_MANAGER', 'CANDIDATE'])(req);
+  if (authResult instanceof NextResponse) return authResult;
+
+  const jobs = await prisma.jobPosting.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: { _count: { select: { applications: true } } },
+  });
+
+  return NextResponse.json(jobs.map(({ _count, ...job }) => ({
+    ...job,
+    applicantsCount: _count.applications,
+  })));
+});
+
 export const POST = withErrorHandler(async (req: Request) => {
   const authResult = requireRole(['RECRUITER', 'ADMIN'])(req);
   if (authResult instanceof NextResponse) return authResult;

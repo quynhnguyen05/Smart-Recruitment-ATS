@@ -1,13 +1,34 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function ScorecardPage() {
   const [technicalScore, setTechnicalScore] = useState("");
   const [notes, setNotes] = useState("");
+  const [interviewId] = useState(() => typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("interviewId") || "");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Đã nộp bản đánh giá (Scorecard) thành công! Form giờ sẽ chuyển sang Read-only.");
+    setError("");
+    setIsSubmitting(true);
+    try {
+      if (!interviewId) throw new Error("Thiếu interviewId để lưu scorecard");
+      await fetch(`/api/interviews/${interviewId}/scorecard`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token") || ""}` },
+        body: JSON.stringify({ score: Number(technicalScore), notes }),
+      }).then(async (response) => {
+        if (!response.ok) { const data = await response.json(); throw new Error(data.error?.message || "Không thể lưu scorecard"); }
+      });
+      router.push("/scorecard-summary");
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Không thể lưu scorecard");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -25,6 +46,7 @@ export default function ScorecardPage() {
       {/* CỘT PHẢI: 40% - Bảng Form chấm điểm */}
       <div className="w-[40%] bg-white p-6 overflow-y-auto shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)]">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Bảng đánh giá (Scorecard)</h2>
+        {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md">{error}</div>}
 
         {/* Khối Gợi ý từ AI (US-ATS-08) */}
         <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
@@ -71,9 +93,10 @@ export default function ScorecardPage() {
 
           <button
             type="submit"
-            className="w-full mt-4 bg-[#1D4ED8] hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-md transition-colors"
+            disabled={isSubmitting}
+            className="w-full mt-4 bg-[#1D4ED8] hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-md transition-colors disabled:bg-gray-400"
           >
-            Lưu đánh giá (Submit)
+            {isSubmitting ? "Đang lưu..." : "Lưu đánh giá (Submit)"}
           </button>
         </form>
       </div>

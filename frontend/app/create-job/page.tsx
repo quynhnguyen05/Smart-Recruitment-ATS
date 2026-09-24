@@ -1,25 +1,39 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch } from "@/core/api";
 
 export default function CreateJobPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({ title: "", department: "", location: "", description: "" });
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.description) {
       setError("Tiêu đề và Mô tả công việc không được để trống.");
       return;
     }
     
-    // Thêm 2 dòng này để xóa sạch dữ liệu cũ trước khi chuyển trang
     setError("");
-    setFormData({ title: "", department: "", location: "", description: "" });
-    
-    alert("Đã tạo Job Posting thành công (Trạng thái: DRAFT)");
-    router.push("/dashboard");
+    setIsLoading(true);
+    try {
+      await apiFetch("/api/jobs", {
+        method: "POST",
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          requirements: formData.description,
+        }),
+      });
+      setFormData({ title: "", department: "", location: "", description: "" });
+      router.push("/dashboard");
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Không thể tạo tin tuyển dụng");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -52,7 +66,7 @@ export default function CreateJobPage() {
 
         <div className="flex justify-end gap-4 border-t border-gray-100 pt-6">
           <button type="button" onClick={() => router.push("/dashboard")} className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium">Hủy bỏ</button>
-          <button type="submit" className="px-6 py-2 bg-[#1D4ED8] text-white font-bold rounded-md hover:bg-blue-800">Lưu bản nháp (DRAFT)</button>
+          <button type="submit" disabled={isLoading} className="px-6 py-2 bg-[#1D4ED8] text-white font-bold rounded-md hover:bg-blue-800 disabled:bg-gray-400">{isLoading ? "Đang lưu..." : "Lưu bản nháp (DRAFT)"}</button>
         </div>
       </form>
     </div>

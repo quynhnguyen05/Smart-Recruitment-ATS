@@ -1,5 +1,10 @@
 "use client";
 import React, { useState } from "react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { apiFetch } from "@/core/api";
+
+type Interviewer = { id: string; email: string };
 
 export default function ScheduleInterviewPage() {
   const [date, setDate] = useState("");
@@ -7,27 +12,36 @@ export default function ScheduleInterviewPage() {
   const [interviewer, setInterviewer] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [interviewers, setInterviewers] = useState<Interviewer[]>([]);
+  const [applicationId] = useState(() => typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("applicationId") || "");
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    apiFetch<Interviewer[]>("/api/interviewers")
+      .then(setInterviewers)
+      .catch((loadError) => setError(loadError instanceof Error ? loadError.message : "Không thể tải interviewer"));
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    // Giả lập logic kiểm tra trùng lịch (Conflict Check)
-    setTimeout(() => {
-      setIsLoading(false);
-      // Giả sử ngày 25/09 lúc 09:00 luôn bị trùng lịch để demo báo lỗi
-      if (date === "2026-09-25" && time === "09:00") {
-        setError("⚠️ Lịch phỏng vấn bị trùng! Interviewer này đã có lịch bận vào khung giờ trên.");
-        return;
-      }
-
-      alert("Đã gửi email mời phỏng vấn và lên lịch thành công!");
-      // Reset form sau khi thành công
+    try {
+      if (!applicationId) throw new Error("Thiếu applicationId để lên lịch phỏng vấn");
+      const interview = await apiFetch<{ id: string }>("/api/interviews", {
+        method: "POST",
+        body: JSON.stringify({ applicationId, interviewerId: interviewer, scheduledAt: new Date(`${date}T${time}:00`).toISOString() }),
+      });
       setDate("");
       setTime("");
       setInterviewer("");
-    }, 1000);
+      router.push(`/scorecard?interviewId=${interview.id}`);
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Không thể lên lịch phỏng vấn");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -84,8 +98,7 @@ export default function ScheduleInterviewPage() {
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#1D4ED8] focus:border-[#1D4ED8]"
             >
               <option value="">Chọn người phỏng vấn...</option>
-              <option value="INT-01">Trần Văn B (Tech Lead)</option>
-              <option value="INT-02">Lê Thị C (Senior Developer)</option>
+              {interviewers.map((item) => <option key={item.id} value={item.id}>{item.email}</option>)}
             </select>
           </div>
 

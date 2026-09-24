@@ -1,16 +1,18 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function OfferApprovalPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmText, setConfirmText] = useState("");
+  const router = useRouter();
 
   const handleConfirm = (e: React.FormEvent) => {
     e.preventDefault();
     if (confirmText === "XAC NHAN") {
-      alert("Đã lưu quyết định Offer thành công! (Audit log đã được ghi nhận hệ thống)");
       setIsModalOpen(false);
       setConfirmText("");
+      router.push("/dashboard");
     }
   };
 

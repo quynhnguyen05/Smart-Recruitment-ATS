@@ -1,12 +1,30 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { apiFetch } from "@/core/api";
+
+type Job = { id: string; title: string; status: "DRAFT" | "PUBLISHED" | "CLOSED" };
 
 export default function ApplyJobPage() {
   const [name, setName] = useState(""); // Quản lý state của Họ và tên
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobId, setJobId] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    apiFetch<Job[]>("/api/jobs")
+      .then((availableJobs) => {
+        const publishedJobs = availableJobs.filter((job) => job.status === "PUBLISHED");
+        setJobs(publishedJobs);
+        const requestedJobId = new URLSearchParams(window.location.search).get("jobId");
+        setJobId(publishedJobs.some((job) => job.id === requestedJobId) ? requestedJobId! : publishedJobs[0]?.id || "");
+      })
+      .catch((loadError) => setError(loadError instanceof Error ? loadError.message : "Không thể tải danh sách job"));
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -46,26 +64,41 @@ export default function ApplyJobPage() {
       return;
     }
 
+    if (!jobId) {
+      setError("Hiện chưa có job đang mở để ứng tuyển.");
+      return;
+    }
+
     setIsSubmitting(true);
-    
-    // Giả lập gọi API Backend mất 3s để người dùng thấy thanh Loading
-    setTimeout(() => {
+
+    try {
+      const formData = new FormData();
+      formData.append("jobId", jobId);
+      formData.append("cv", file);
+      await apiFetch("/api/applications", {
+        method: "POST",
+        body: formData,
+      });
       setIsSubmitting(false);
-      alert("Nộp CV thành công! AI đang tiến hành trích xuất dữ liệu.");
-      
-      // Dọn dẹp trắng form sau khi nộp thành công
+      setError("");
       setName("");
       setFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
-    }, 3000);
+      setError("Đã nộp hồ sơ thành công.");
+      router.push("/applications");
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Không thể nộp hồ sơ");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-        <h2 className="text-2xl font-bold text-[#1D4ED8] mb-2">Ứng tuyển: Frontend Developer</h2>
+        <h2 className="text-2xl font-bold text-[#1D4ED8] mb-2">Ứng tuyển</h2>
         <p className="text-gray-500 mb-8">Vui lòng điền thông tin và tải lên CV của bạn.</p>
 
         {error && (
@@ -75,6 +108,12 @@ export default function ApplyJobPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Vị trí ứng tuyển <span className="text-red-500">*</span></label>
+            <select required value={jobId} onChange={(event) => setJobId(event.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-md" disabled={jobs.length === 0}>
+              {jobs.length === 0 ? <option value="">Đang tải job đang mở...</option> : jobs.map((job) => <option key={job.id} value={job.id}>{job.title}</option>)}
+            </select>
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Họ và tên <span className="text-red-500">*</span>

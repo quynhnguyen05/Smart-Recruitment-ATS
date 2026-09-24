@@ -41,14 +41,14 @@ export default function LoginPage() {
       localStorage.setItem("role", data.role);
       
       if (data.role === 'CANDIDATE') {
-        router.push('/candidate-status'); 
+        router.push('/apply');
       } else {
         router.push('/dashboard'); 
       }      
       
       // router.push("/dashboard"); // Chuyển hướng người dùng sau khi xong UI nền
       
-    } catch (error) {
+    } catch {
       setErrorMessage("Không thể kết nối đến máy chủ. Vui lòng thử lại.");
     } finally {
       setIsLoading(false);
