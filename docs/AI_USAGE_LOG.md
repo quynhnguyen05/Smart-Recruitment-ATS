@@ -27,6 +27,8 @@
 | A-UI-10 | Dựng Form Lịch Phỏng Vấn (US-ATS-07) | Dựng form nhập ngày giờ và chọn Interviewer. | AI code form lưu trực tiếp mà không có bước validate logic nghiệp vụ. | Kiểm soát Business Rule: Căn cứ theo yêu cầu hệ thống không được cho phép xếp trùng lịch, em đã tự code thêm cơ chế Conflict Check giả lập. Chặn lưu form và hiển thị cảnh báo đỏ nếu phát hiện Interviewer bận vào khung giờ đó. |
 | A-UI-11 | Dựng UI Duyệt CV & Scorecard Summary | Code giao diện hiển thị AI Match Score và Bảng điểm phỏng vấn. | AI tự thiết kế màn hình Duyệt CV dạng cuộn dọc (scroll) khiến việc đối chiếu khó khăn. | Tối ưu UX: Tái sử dụng thiết kế Split-view 60/40 đã thành công ở màn hình Chấm điểm để áp dụng cho màn hình Duyệt CV, đảm bảo tính nhất quán của hệ thống. Đồng thời thiết kế Confirm Dialog cho luồng Reject ứng viên. |
 
+| A-UI-12 | Dựng UI Tóm tắt CV & Fallback (US-ATS-03, 04) | Dựng màn hình hiển thị kết quả phân tích CV từ AI. | AI không gắn nhãn minh bạch thông tin sinh ra bởi máy, dễ gây hiểu lầm cho Recruiter. | Đảm bảo tính minh bạch: Dựa trên NFR của dự án, em đã bổ sung nhãn "Thông tin được trích xuất tự động bởi AI". Đồng thời, tự thêm cơ chế nút Toggle và Fallback UI để hệ thống tự động chuyển sang hiển thị PDF gốc khi giả lập lỗi AI, đảm bảo luồng nghiệp vụ không bị đứng. |
+
 #Tâm Như
 | **ID** | **Task** | **Input/context** | **AI output** | **Human verification/decision** |
 |---|---|---|---|---|
