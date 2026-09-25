@@ -8,12 +8,13 @@
 | EP2 | AI Screening | US-ATS-05 | AI tính Match Score kèm Matched/Missing Skills và lý do | 3 |
 | EP2 | AI Screening | US-ATS-06 | Recruiter Pass/Reject Application dựa trên gợi ý AI | 2 |
 | EP3 | Interview | US-ATS-07 | Recruiter lên lịch Interview Round | 2 |
-| EP3 | Interview | US-ATS-08 | AI gợi ý câu hỏi phỏng vấn theo JD/CV | 3 |
-| EP3 | Interview | US-ATS-09 | Interviewer điền và Submit Interview Scorecard | 2 |
-| EP4 | Decision | US-ATS-10 | Hiring Manager xem tổng hợp Scorecard | 2 |
-| EP4 | Decision | US-ATS-11 | Hiring Manager xác nhận Offer/Reject | 3 |
-| EP5 | Candidate & Admin | US-ATS-12 | Candidate xem trạng thái Application Pipeline | 2 |
-| EP5 | Candidate & Admin | US-ATS-13 | Admin quản lý User, Role và Permission | 2 |
+| EP3 | Interview | US-ATS-08 | Interview xem lịch phỏng vấn | 2 |
+| EP3 | Interview | US-ATS-09 | AI gợi ý câu hỏi phỏng vấn theo JD/CV | 3 |
+| EP3 | Interview | US-ATS-10 | Interviewer điền và Submit Interview Scorecard | 2 |
+| EP4 | Decision | US-ATS-11| Hiring Manager xem tổng hợp Scorecard | 2 |
+| EP4 | Decision | US-ATS-12 | Hiring Manager xác nhận Offer/Reject | 3 |
+| EP5 | Candidate & Admin | US-ATS-13 | Candidate xem trạng thái Application Pipeline | 2 |
+| EP5 | Candidate & Admin | US-ATS-14 | Admin quản lý User, Role và Permission | 2 |
 
 # Output #14 - User Story Specifications
 
@@ -57,10 +58,12 @@
 
 #### Acceptance Criteria
 
-- **AC1:** Given a Job has status `OPEN`, when I submit an application with a CV file, then an Application record is created with status `APPLIED`, linked to my `candidate_id` and the `job_id`.
-- **AC2:** Given I have already applied to this Job before, when I try to apply again, then the system prevents a duplicate application and shows my existing application instead.
-- **AC3:** Given the uploaded file is not a supported format (not PDF/DOCX) or exceeds the size limit, when I submit, then the system rejects it with a clear error message and no Application is created.
-- **AC4:** Given a Job has status `CLOSED`, when I try to apply, then the system blocks submission and explains the job is no longer accepting applications.
+- **AC1:** Given I am a Candidate, when I open the Job List, then the system shows available Jobs with basic information such as title, description, requirements, and status.
+- **AC2:** Given a Job has status `OPEN`, when I open the Job details, then I can view the job description and requirements and choose to apply.
+- **AC3:** Given a Job has status `OPEN`, when I submit an application with a CV file, then an Application record is created with status `APPLIED`, linked to my `candidate_id` and the `job_id`.
+- **AC4:** Given I have already applied to this Job before, when I try to apply again, then the system prevents a duplicate application and shows my existing application instead.
+- **AC5:** Given the uploaded file is not a supported format (not PDF/DOCX) or exceeds the size limit, when I submit, then the system rejects it with a clear error message and no Application is created.
+- **AC6:** Given a Job has status `CLOSED`, when I try to apply, then the system blocks submission and explains the job is no longer accepting applications.
 
 **Out of Scope**
 
@@ -91,6 +94,7 @@
 - **AC2:** Given parsing succeeds only partially (e.g., education field not found), when viewed, then the available fields are shown and missing ones are clearly marked — never guessed or filled with placeholder data.
 - **AC3:** Given parsing fails completely (corrupted file or unsupported internal format), when Recruiter opens the Application, then the raw CV file is still viewable and Recruiter can proceed with manual screening.
 - **AC4:** Given a CV with non-standard formatting (e.g., table-based layout) produces uncertain/possibly incorrect extraction, when Recruiter views it, then they can always open the raw CV to verify — parsed data is never presented as guaranteed ground truth.
+- **AC5:** Given I do not have permission to access candidate data, when I try to view the candidate's CV or parsed CV data, then the system denies access.
 
 **Out of Scope**
 
@@ -119,6 +123,7 @@
 - **AC2:** Given the AI service is unavailable, when Recruiter opens the Application, then the summary section shows a clear error state, and the raw CV remains fully accessible.
 - **AC3:** Given a summary is generated, when displayed, then it is explicitly labeled `AI-generated summary — please verify` and never presented as a verified fact.
 - **AC4:** Given the parsed data is incomplete, when the summary is generated, then it states what information is missing rather than inventing plausible-sounding details.
+- **AC5:** Given the AI service is available, when the Recruiter requests a CV Summary, then the system returns the result within 5 seconds in the demo environment.
 
 **Out of Scope**
 
@@ -148,6 +153,7 @@
 - **AC2:** Given the AI service is unavailable, when Recruiter opens the Application, then the CV data is still viewable manually and an error state is shown for the score section instead of a fabricated number.
 - **AC3:** Given a match score is shown, when Recruiter reads it, then it is never presented as a pass/fail decision — only as a suggestion, clearly labeled.
 - **AC4:** Given a CV has missing required fields needed for scoring, when scoring runs, then the system flags `insufficient data` instead of guessing a score.
+- **AC5:** Given the AI service is available, when the Recruiter requests a Match Score, then the system returns the result within 5 seconds in the demo environment.
 
 **Out of Scope**
 
@@ -220,8 +226,35 @@
 **Owner:** Engineering
 
 ---
+ ### US-ATS-08 — Interviewer xem lịch phỏng vấn
 
-### US-ATS-08 — AI gợi ý câu hỏi phỏng vấn
+ **User Story**
+
+ > As an Interviewer, I want to view my interview schedule, so that I can know the candidates, interview time, and interview details that I need to prepare for.
+
+ **Context:** Covers REQ-ATS-08.
+
+ #### Acceptance Criteria
+
+ - **AC1:** Given I am logged in as an Interviewer, when I open the Interview Schedule, then the system shows my assigned interviews.
+- **AC2:** Given an interview is assigned to me, when I view its details, then the system shows the candidate name, job position, interview round, date, time, and interview method or location.
+- **AC3:** Given I have multiple interviews, when I view the schedule, then I can see the interviews sorted by date and time.
+- **AC4:** Given there are no interviews assigned to me, when I open the Interview Schedule, then the system shows an appropriate message indicating that there are no scheduled interviews.
+
+ **Out of Scope**
+
+ - Interviewer tự tạo hoặc thay đổi lịch phỏng vấn.
+- Candidate hoặc Recruiter xem lịch của Interviewer.
+- Gửi email hoặc thông báo nhắc lịch phỏng vấn.
+
+ **Dependencies:** US-ATS-07 — Recruiter lên lịch Interview Round.
+
+ **Estimate:** 2 pts
+
+ **Owner:** Product/BA
+ 
+---
+### US-ATS-09 — AI gợi ý câu hỏi phỏng vấn
 
 **User Story**
 
@@ -248,7 +281,7 @@
 
 ---
 
-### US-ATS-09 — Interviewer điền Scorecard
+### US-ATS-10 — Interviewer điền Scorecard
 
 **User Story**
 
@@ -267,7 +300,7 @@
 
 - Tự động tính điểm tổng hợp cuối cùng thay Hiring Manager quyết định.
 
-**Dependencies:** US-ATS-07
+**Dependencies:** US-ATS-07, US-ATS-08
 
 **Estimate:** 2 pts
 
@@ -277,7 +310,7 @@
 
 ## EPIC 4 — DECISION
 
-### US-ATS-10 — Hiring Manager xem tổng hợp Scorecard
+### US-ATS-11 — Hiring Manager xem tổng hợp Scorecard
 
 **User Story**
 
@@ -297,7 +330,7 @@
 - Tự động tính điểm trung bình cuối cùng thay người.
 - So sánh nhiều ứng viên trong cùng màn hình.
 
-**Dependencies:** US-ATS-09
+**Dependencies:** US-ATS-10
 
 **Estimate:** 2 pts
 
@@ -305,11 +338,12 @@
 
 ---
 
-### US-ATS-11 — Xác nhận Offer (Explicit Confirmation)
+### US-ATS-12 — Hiring Manager xác nhận Offer/Reject
 
 **User Story**
 
-> As a Hiring Manager, I want to review the aggregated scorecards and then explicitly confirm an offer decision, so that no offer is ever created without proper evaluation and clear accountability.
+> As a Hiring Manager, I want to review the aggregated scorecards and explicitly confirm an Offer or Reject decision, so that the final hiring decision is clear and accountable.
+
 
 **Context:** Covers REQ-ATS-11, BR-ATS-03.
 
@@ -322,6 +356,7 @@
 - **AC3:** Given the confirmation dialog is shown, when I close it without confirming, then no Offer is created and the Application status remains unchanged.
 - **AC4:** Given a user without the Hiring Manager role attempts to call the offer-confirm action directly (e.g., via API, bypassing the UI), then the system denies the request (HTTP 403).
 - **AC5:** Given an Offer has already been confirmed for an Application, when a duplicate confirm action is attempted (e.g., double-click, retried request), then the system prevents creating a second Offer (idempotent behavior).
+- **AC6:** Given an Application has at least one completed Scorecard, when I confirm Reject, then the Application status changes to `REJECTED` and an AuditEvent is recorded with my user ID.
 
 **Out of Scope**
 
@@ -329,7 +364,7 @@
 - Ký nhận offer điện tử.
 - Thương lượng lương qua hệ thống.
 
-**Dependencies:** US-ATS-09, US-ATS-10
+**Dependencies:** US-ATS-10, US-ATS-11
 
 **Estimate:** 3 pts
 
@@ -339,7 +374,7 @@
 
 ## EPIC 5 — CANDIDATE & ADMIN
 
-### US-ATS-12 — Candidate xem trạng thái pipeline
+### US-ATS-13 — Candidate xem trạng thái pipeline
 
 **User Story**
 
@@ -366,7 +401,7 @@
 
 ---
 
-### US-ATS-13 — Admin quản lý user và phân quyền
+### US-ATS-14 — Admin quản lý user và phân quyền
 
 **User Story**
 
