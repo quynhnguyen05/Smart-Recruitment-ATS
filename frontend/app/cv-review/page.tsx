@@ -74,6 +74,7 @@ export default function CVReviewPage() {
   useEffect(() => {
     const application = applications.find((item) => item.id === selectedId);
     if (!application) return;
+    setError("");
     // Loading state is intentionally synchronized with the selected application.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsCvLoading(true);
@@ -101,6 +102,7 @@ export default function CVReviewPage() {
 
   const updateStatus = async (status: "SCREENING_PASSED" | "REJECTED") => {
     if (!selectedApplication) return;
+    setError("");
     try {
       await apiFetch(`/api/applications/${selectedApplication.id}`, { method: "PATCH", body: JSON.stringify({ status }) });
       if (status === "SCREENING_PASSED") {
@@ -138,7 +140,7 @@ export default function CVReviewPage() {
             </button>
           )}
         </div>
-        {isLoading ? <p className="text-gray-500 mb-2">Đang tải danh sách đơn...</p> : applications.length > 0 && <select value={selectedId} onChange={(event) => { setCvUrl(""); setCvContentType(""); setCvText(""); setMatch(null); setShowSummary(false); setSummaryData(null); setSelectedId(event.target.value); }} className="mb-2 border rounded-md p-2">
+        {isLoading ? <p className="text-gray-500 mb-2">Đang tải danh sách đơn...</p> : applications.length > 0 && <select value={selectedId} onChange={(event) => { setError(""); setCvUrl(""); setCvContentType(""); setCvText(""); setMatch(null); setShowSummary(false); setSummaryData(null); setSelectedId(event.target.value); }} className="mb-2 border rounded-md p-2">
           {applications.map((application) => <option key={application.id} value={application.id}>{application.candidateEmail} - {application.job.title} - {application.status}</option>)}
         </select>}
         <div className="flex-1 bg-white border border-gray-300 shadow-sm rounded-md flex flex-col overflow-hidden">
@@ -221,7 +223,7 @@ export default function CVReviewPage() {
 
       {/* Modal Xác nhận Từ chối */}
       {isRejectModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96 shadow-xl">
             <h3 className="text-lg font-bold text-red-600 mb-2">Xác nhận Từ chối</h3>
             <p className="text-sm text-gray-600 mb-6">Bạn có chắc chắn muốn từ chối ứng viên này? Quyết định này sẽ được ghi vào Audit Log.</p>

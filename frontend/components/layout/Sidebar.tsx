@@ -70,7 +70,7 @@ const navGroups: NavGroup[] = [
     label: "Phỏng vấn & đánh giá",
     roles: ["ADMIN", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER"],
     items: [
-      { href: "/my-interviews", label: "Lịch phỏng vấn của tôi", roles: ["INTERVIEWER"] },
+      { href: "/my-interviews", label: "Lịch phỏng vấn", roles: ["INTERVIEWER", "ADMIN"] },
       { href: "/schedule-interview", label: "Lên lịch phỏng vấn", roles: ["ADMIN", "RECRUITER"] },
       { href: "/scorecard", label: "Scorecard", roles: ["ADMIN", "INTERVIEWER"] },
       { href: "/scorecard-summary", label: "Tổng hợp scorecard", roles: ["ADMIN", "HIRING_MANAGER"] },

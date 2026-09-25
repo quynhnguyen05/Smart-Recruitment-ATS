@@ -20,17 +20,30 @@ export default function MyInterviewsPage() {
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [role, setRole] = useState("");
   const router = useRouter();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    let userRole = localStorage.getItem("role") || "";
+    setRole(userRole);
     let currentUserId = "";
-    let userRole = "";
     if (token) {
       try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
+        const base64Url = token.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split("")
+            .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+            .join("")
+        );
+        const payload = JSON.parse(jsonPayload);
         currentUserId = payload.userId;
-        userRole = payload.role;
+        if (payload.role) {
+          userRole = payload.role;
+          setRole(userRole);
+        }
       } catch (e) {
         console.error("Failed to parse token", e);
       }
@@ -50,8 +63,12 @@ export default function MyInterviewsPage() {
 
   return (
     <div className="p-8 max-w-6xl mx-auto min-h-screen bg-gray-50">
-      <h1 className="text-3xl font-bold text-gray-800 mb-2">Lịch phỏng vấn của tôi</h1>
-      <p className="text-gray-500 mb-8">Danh sách ứng viên bạn được phân công phỏng vấn.</p>
+      <h1 className="text-3xl font-bold text-gray-800 mb-2">Lịch phỏng vấn</h1>
+      <p className="text-gray-500 mb-8">
+        {role === "ADMIN"
+          ? "Danh sách toàn bộ ứng viên đang chờ được phỏng vấn trong hệ thống."
+          : "Danh sách ứng viên bạn được phân công phỏng vấn."}
+      </p>
       
       {error && <div className="p-4 mb-6 bg-red-50 text-red-700 rounded-md">{error}</div>}
       

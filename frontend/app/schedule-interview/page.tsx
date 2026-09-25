@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { apiFetch } from "@/core/api";
 
 type Interviewer = { id: string; email: string; role?: string };
-type Application = { id: string; candidateEmail: string; job: { title: string }; status: string };
+type Application = { id: string; candidateEmail: string; job: { title: string }; status: string; interviewRounds?: any[]; offer?: any };
 
 function getTodayDate() {
   const today = new Date();
@@ -36,13 +36,21 @@ function ScheduleInterviewContent() {
         const filteredInterviewers = availableInterviewers.filter((item) => item.role === "INTERVIEWER" || item.role === "HIRING_MANAGER");
         setInterviewers(filteredInterviewers);
 
-        const passedApps = availableApplications.filter((item) => item.status === "SCREENING_PASSED");
+        const passedApps = availableApplications.filter((item) => {
+          if (item.status !== "SCREENING_PASSED") return false;
+          if (item.offer) return false;
+          if (item.interviewRounds && item.interviewRounds.length >= 2) return false;
+          return true;
+        });
         setApplications(passedApps);
 
         if (requestedApplicationId) {
           const selected = passedApps.find((item) => item.id === requestedApplicationId);
-          if (selected) setApplicationId(selected.id);
-          else setError("Hồ sơ ứng viên được chọn không hợp lệ hoặc chưa qua vòng duyệt CV (SCREENING_PASSED).");
+          if (selected) {
+            setApplicationId(selected.id);
+            if (selected.interviewRounds?.length === 1) setRound("2");
+          }
+          else setError("Hồ sơ ứng viên được chọn không hợp lệ, đã đủ 2 vòng phỏng vấn, hoặc đã có Offer.");
         }
       })
       .catch((loadError) => setError(loadError instanceof Error ? loadError.message : "Không thể tải dữ liệu lịch phỏng vấn"))
@@ -55,9 +63,24 @@ function ScheduleInterviewContent() {
     event.preventDefault();
     setError("");
     setSuccessMessage("");
+
+    if (!selectedApplication) {
+      setError("Vui lòng chọn hồ sơ ứng viên");
+      return;
+    }
+
+    const existingRoundsCount = selectedApplication.interviewRounds?.length || 0;
+    if (existingRoundsCount > 0 && round === "1") {
+      setError("Cảnh báo: Ứng viên này đã được lên lịch Vòng 1. Vui lòng chọn Vòng 2.");
+      return;
+    }
+    if (existingRoundsCount === 0 && round === "2") {
+      setError("Cảnh báo: Ứng viên chưa thi Vòng 1. Vui lòng chọn Vòng 1 trước.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      if (!applicationId) throw new Error("Vui lòng chọn hồ sơ ứng viên");
       const interview = await apiFetch<{ id: string }>("/api/interviews", {
         method: "POST",
         body: JSON.stringify({
@@ -100,7 +123,13 @@ function ScheduleInterviewContent() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700">Hồ sơ ứng viên <span className="text-red-500">*</span></label>
-            <select required value={applicationId} onChange={(event) => setApplicationId(event.target.value)} disabled={Boolean(requestedApplicationId) || isLoading} className="w-full rounded-md border border-gray-300 px-4 py-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500">
+            <select required value={applicationId} onChange={(event) => {
+              const val = event.target.value;
+              setApplicationId(val);
+              const app = applications.find(a => a.id === val);
+              if (app && app.interviewRounds?.length === 1) setRound("2");
+              else setRound("1");
+            }} disabled={Boolean(requestedApplicationId) || isLoading} className="w-full rounded-md border border-gray-300 px-4 py-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500">
               <option value="">Chọn hồ sơ cần phỏng vấn...</option>
               {applications.map((application) => <option key={application.id} value={application.id}>{application.candidateEmail} - {application.job.title} ({application.status})</option>)}
             </select>

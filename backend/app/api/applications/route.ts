@@ -29,6 +29,8 @@ export const GET = withErrorHandler(async (req: Request) => {
       : parsed.data.jobId ? { jobId: parsed.data.jobId } : undefined,
     include: {
       job: { select: { id: true, title: true, status: true } },
+      interviewRounds: true,
+      offer: true,
     },
     orderBy: { appliedAt: 'desc' },
   });

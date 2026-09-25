@@ -24,19 +24,21 @@ export const GET = withErrorHandler(async (req: Request) => {
     grouped.set(interview.applicationId, existing);
   });
 
-  return NextResponse.json([...grouped.entries()].map(([id, rounds]) => {
-    const scores = rounds.map((round) => round.scorecard?.score ?? null);
-    const availableScores = scores.filter((score): score is number => score !== null);
-    const average = availableScores.length ? Number((availableScores.reduce((sum, score) => sum + score, 0) / availableScores.length).toFixed(2)) : null;
-    const application = rounds[0].application;
-    return {
-      id,
-      candidateName: candidateEmails.get(application.candidateId) || 'Không xác định',
-      position: application.job.title,
-      roundOneScore: scores[0] ?? null,
-      roundTwoScore: scores[1] ?? null,
-      average,
-      status: application.status === 'REJECTED' ? 'rejected' : application.offer?.status === 'CONFIRMED' ? 'approved' : 'pending',
-    };
-  }));
+  return NextResponse.json([...grouped.entries()]
+    .filter(([_, rounds]) => rounds.some((round) => round.scorecard !== null))
+    .map(([id, rounds]) => {
+      const scores = rounds.map((round) => round.scorecard?.score ?? null);
+      const availableScores = scores.filter((score): score is number => score !== null);
+      const average = availableScores.length ? Number((availableScores.reduce((sum, score) => sum + score, 0) / availableScores.length).toFixed(2)) : null;
+      const application = rounds[0].application;
+      return {
+        id,
+        candidateName: candidateEmails.get(application.candidateId) || 'Không xác định',
+        position: application.job.title,
+        roundOneScore: availableScores[0] ?? null,
+        roundTwoScore: availableScores[1] ?? null,
+        average,
+        status: application.status === 'REJECTED' ? 'rejected' : application.offer?.status === 'CONFIRMED' ? 'approved' : 'pending',
+      };
+    }));
 });
