@@ -20,6 +20,7 @@ import {
 type NavItem = {
   href: string;
   label: string;
+  roles?: string[];
 };
 
 type NavGroup = {
@@ -32,37 +33,43 @@ type NavGroup = {
 const navGroups: NavGroup[] = [
   {
     label: "Tổng quan",
-    roles: ["ADMIN", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER", "CANDIDATE"],
-    items: [{ href: "/dashboard", label: "Bảng điều khiển" }],
+    roles: ["ADMIN", "RECRUITER", "CANDIDATE"],
+    items: [{ href: "/dashboard", label: "Bảng điều khiển", roles: ["ADMIN", "RECRUITER", "CANDIDATE"] }],
     icon: LayoutDashboard,
   },
   {
     label: "Tuyển dụng",
-    roles: ["ADMIN", "RECRUITER", "HIRING_MANAGER", "CANDIDATE"],
+    roles: ["ADMIN", "RECRUITER", "CANDIDATE"],
     items: [
-      { href: "/jobs", label: "Danh sách công việc" },
-      { href: "/create-job", label: "Tạo công việc" },
-      { href: "/apply", label: "Ứng tuyển" },
-      { href: "/applications", label: "Đơn ứng tuyển" },
+      { href: "/jobs", label: "Danh sách công việc", roles: ["ADMIN", "RECRUITER"] },
+      { href: "/create-job", label: "Tạo công việc", roles: ["ADMIN", "RECRUITER"] },
+      { href: "/apply", label: "Ứng tuyển", roles: ["ADMIN"] },
+      { href: "/applications", label: "Đơn ứng tuyển", roles: ["ADMIN", "RECRUITER"] },
     ],
     icon: BriefcaseBusiness,
+  },
+  {
+    label: "Đơn ứng tuyển của tôi",
+    roles: ["CANDIDATE"],
+    items: [{ href: "/applications", label: "Trạng thái ứng tuyển", roles: ["CANDIDATE"] }],
+    icon: FileText,
   },
   {
     label: "Hồ sơ ứng viên",
     roles: ["ADMIN", "RECRUITER", "HIRING_MANAGER"],
     items: [
-      { href: "/cv-review", label: "Duyệt hồ sơ" },
-      { href: "/cv-summary", label: "Tóm tắt CV" },
+      { href: "/cv-review", label: "Duyệt hồ sơ", roles: ["ADMIN", "RECRUITER", "HIRING_MANAGER"] },
+      { href: "/cv-summary", label: "Tóm tắt CV", roles: ["ADMIN", "RECRUITER", "HIRING_MANAGER"] },
     ],
     icon: FileText,
   },
   {
     label: "Phỏng vấn & đánh giá",
-    roles: ["ADMIN", "HIRING_MANAGER", "INTERVIEWER"],
+    roles: ["ADMIN", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER"],
     items: [
-      { href: "/schedule-interview", label: "Lịch phỏng vấn" },
-      { href: "/scorecard", label: "Scorecard" },
-      { href: "/scorecard-summary", label: "Tổng hợp scorecard" },
+      { href: "/schedule-interview", label: "Lịch phỏng vấn", roles: ["ADMIN", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER"] },
+      { href: "/scorecard", label: "Scorecard", roles: ["ADMIN", "HIRING_MANAGER", "INTERVIEWER"] },
+      { href: "/scorecard-summary", label: "Tổng hợp scorecard", roles: ["ADMIN", "HIRING_MANAGER"] },
     ],
     icon: ClipboardCheck,
   },
@@ -70,8 +77,8 @@ const navGroups: NavGroup[] = [
     label: "Offer & quản trị",
     roles: ["ADMIN", "HIRING_MANAGER"],
     items: [
-      { href: "/offer-approval", label: "Phê duyệt offer" },
-      { href: "/admin-users", label: "Quản lý người dùng" },
+      { href: "/offer-approval", label: "Phê duyệt offer", roles: ["ADMIN", "HIRING_MANAGER"] },
+      { href: "/admin-users", label: "Quản lý người dùng", roles: ["ADMIN"] },
     ],
     icon: ShieldCheck,
   },
@@ -103,6 +110,11 @@ export default function Sidebar() {
     setOpenGroups((current) => ({ ...current, [label]: !current[label] }));
   };
 
+  const canSee = (roles?: string[]) => role === "ADMIN" || !roles || roles.includes(role);
+  const visibleGroups = navGroups
+    .map((group) => ({ ...group, items: group.items.filter((item) => canSee(item.roles)) }))
+    .filter((group) => canSee(group.roles) && group.items.length > 0);
+
   return (
     <aside className={`group/sidebar relative w-full shrink-0 border-b border-slate-200 bg-slate-950 text-white transition-[width] duration-200 md:min-h-screen md:border-b-0 md:border-r md:border-slate-800 ${isCollapsed ? "md:w-20" : "md:w-[250px]"}`}>
       <div className="flex h-full flex-col md:sticky md:top-0 md:h-screen">
@@ -123,7 +135,7 @@ export default function Sidebar() {
         </div>
 
         <nav aria-label="Điều hướng chính" className="flex gap-3 overflow-x-auto px-3 py-4 md:block md:flex-1 md:overflow-y-auto">
-          {navGroups.filter((group) => role === "ADMIN" || group.roles.includes(role)).map((group) => {
+          {visibleGroups.map((group) => {
             const GroupIcon = group.icon;
             const groupIsActive = group.items.some((item) => isPathActive(pathname, item.href));
             const isOpen = openGroups[group.label] ?? groupIsActive;

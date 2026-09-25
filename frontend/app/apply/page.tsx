@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/core/api";
 
-type Job = { id: string; title: string; status: "DRAFT" | "PUBLISHED" | "CLOSED" };
+type Job = { id: string; title: string; status: "DRAFT" | "PUBLISHED" | "CLOSED" | "OPEN"; jobCode?: string; department?: string };
 
 export default function ApplyJobPage() {
   const [name, setName] = useState(""); // Quản lý state của Họ và tên
@@ -18,7 +18,7 @@ export default function ApplyJobPage() {
   useEffect(() => {
     apiFetch<Job[]>("/api/jobs")
       .then((availableJobs) => {
-        const publishedJobs = availableJobs.filter((job) => job.status === "PUBLISHED");
+        const publishedJobs = availableJobs.filter((job) => job.status === "PUBLISHED" || job.status === "OPEN");
         setJobs(publishedJobs);
         const requestedJobId = new URLSearchParams(window.location.search).get("jobId");
         setJobId(publishedJobs.some((job) => job.id === requestedJobId) ? requestedJobId! : publishedJobs[0]?.id || "");
@@ -112,7 +112,7 @@ export default function ApplyJobPage() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Vị trí ứng tuyển <span className="text-red-500">*</span></label>
             <select required value={jobId} onChange={(event) => setJobId(event.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-md" disabled={jobs.length === 0}>
-              {jobs.length === 0 ? <option value="">Đang tải job đang mở...</option> : jobs.map((job) => <option key={job.id} value={job.id}>{job.title}</option>)}
+              {jobs.length === 0 ? <option value="">Đang tải job đang mở...</option> : jobs.map((job) => <option key={job.id} value={job.id}>{job.jobCode || `JOB-${job.id.slice(0, 6).toUpperCase()}`} - {job.title} - {job.department || "Chưa phân loại"}</option>)}
             </select>
           </div>
           <div>

@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { AppError } from './errors';
 
-type Handler = (req: Request, ctx?: any) => Promise<NextResponse>;
+type Handler<TContext = undefined> = (req: Request, ctx: TContext) => Promise<NextResponse>;
 
-export function withErrorHandler(handler: Handler): Handler {
-  return async (req: Request, ctx?: any) => {
+export function withErrorHandler<TContext>(handler: Handler<TContext>): Handler<TContext> {
+  return async (req: Request, ctx: TContext) => {
     try {
       return await handler(req, ctx);
     } catch (err) {

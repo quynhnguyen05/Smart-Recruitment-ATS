@@ -40,8 +40,8 @@ export const POST = withErrorHandler(async (req: Request) => {
 
   await logAudit(authResult.userId, 'CREATE_USER', 'User', user.id, { email, role });
 
-  const { passwordHash: _omit, ...safeUser } = user;
-  return NextResponse.json(safeUser);
+  const { id, email: userEmail, role: userRole, disabled, createdAt } = user;
+  return NextResponse.json({ id, email: userEmail, role: userRole, disabled, createdAt });
 });
 
 export const GET = withErrorHandler(async (req: Request) => {

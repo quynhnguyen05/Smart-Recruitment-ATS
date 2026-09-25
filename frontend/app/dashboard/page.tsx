@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import JobCard from "@/components/JobCard";
 import { apiFetch } from "@/core/api";
 
@@ -18,7 +19,7 @@ export default function DashboardPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [role, setRole] = useState("");
+  const [userRole, setUserRole] = useState("");
   const [isMounted, setIsMounted] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [editTitle, setEditTitle] = useState("");
@@ -39,7 +40,7 @@ export default function DashboardPage() {
     // These values intentionally become available after hydration.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
-    setRole(localStorage.getItem("role") || "");
+    setUserRole(localStorage.getItem("role") || "");
     apiFetch<Job[]>("/api/jobs")
       .then(setJobs)
       .catch((loadError) => setError(loadError instanceof Error ? loadError.message : "Không thể tải danh sách công việc"))
@@ -59,18 +60,19 @@ export default function DashboardPage() {
     }
   };
 
-  const openJobs = jobs.filter((job) => job.status === "PUBLISHED").length;
+  const candidateView = userRole === "CANDIDATE";
+  const visibleJobs = candidateView ? jobs.filter((job) => job.status === "PUBLISHED") : jobs;
+  const openJobs = visibleJobs.filter((job) => job.status === "PUBLISHED").length;
   const applicantCount = jobs.reduce((total, job) => total + job.applicantsCount, 0);
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Bảng điều khiển (Dashboard)</h1>
       <div className="mb-8 flex flex-wrap gap-3">
-        {isMounted && role === "CANDIDATE" && <><button onClick={() => router.push("/apply")} className="px-4 py-2 bg-[#1D4ED8] text-white rounded-md">Tìm vị trí ứng tuyển</button><button onClick={() => router.push("/applications")} className="px-4 py-2 border border-blue-200 text-blue-700 rounded-md">Đơn ứng tuyển của tôi</button></>}
-        {isMounted && (role === "ADMIN" || role === "RECRUITER") && <><button onClick={() => router.push("/create-job")} className="px-4 py-2 bg-[#1D4ED8] text-white rounded-md">Tạo vị trí mới</button><button onClick={() => router.push("/cv-review")} className="px-4 py-2 border border-blue-200 text-blue-700 rounded-md">Xem hồ sơ ứng tuyển</button><button onClick={() => router.push("/scorecard-summary")} className="px-4 py-2 border border-green-200 text-green-700 rounded-md">Tổng hợp scorecard</button></>}
-        {isMounted && (role === "HIRING_MANAGER" || role === "INTERVIEWER") && <><button onClick={() => router.push("/schedule-interview")} className="px-4 py-2 bg-[#059669] text-white rounded-md">Lịch phỏng vấn</button><button onClick={() => router.push("/scorecard-summary")} className="px-4 py-2 border border-green-200 text-green-700 rounded-md">Tổng hợp scorecard</button></>}
+        {isMounted && !candidateView && (userRole === "ADMIN" || userRole === "RECRUITER") && <><button onClick={() => router.push("/create-job")} className="px-4 py-2 bg-[#1D4ED8] text-white rounded-md">Tạo vị trí mới</button><button onClick={() => router.push("/cv-review")} className="px-4 py-2 border border-blue-200 text-blue-700 rounded-md">Xem hồ sơ ứng tuyển</button><button onClick={() => router.push("/scorecard-summary")} className="px-4 py-2 border border-green-200 text-green-700 rounded-md">Tổng hợp scorecard</button></>}
+        {isMounted && !candidateView && (userRole === "HIRING_MANAGER" || userRole === "INTERVIEWER") && <><button onClick={() => router.push("/schedule-interview")} className="px-4 py-2 bg-[#059669] text-white rounded-md">Lịch phỏng vấn</button><button onClick={() => router.push("/scorecard-summary")} className="px-4 py-2 border border-green-200 text-green-700 rounded-md">Tổng hợp scorecard</button></>}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {!candidateView && <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="p-6 bg-white shadow rounded-lg border-t-4 border-[#1D4ED8]">
           <h2 className="text-xl font-semibold">Công việc đang mở (OPEN)</h2>
           <p className="text-3xl font-bold mt-4 text-[#1D4ED8]">{openJobs}</p>
@@ -80,29 +82,39 @@ export default function DashboardPage() {
           <p className="text-3xl font-bold mt-4 text-[#059669]">{applicantCount}</p>
           <p className="text-sm text-blue-700 mt-2">Bấm để xem hồ sơ →</p>
         </button>
-      </div>
+      </div>}
       {/* Danh sách Công việc (US-ATS-01) */}
      <div className="mt-10">
        <h2 className="text-2xl font-bold text-gray-800 mb-6">Danh sách công việc tuyển dụng</h2>
        {error && <div className="p-3 bg-red-50 text-red-700 rounded-md border border-red-200">{error}</div>}
-       {isLoading ? <p className="text-gray-500">Đang tải danh sách công việc...</p> : jobs.length === 0 ? <p className="text-gray-500">Chưa có job posting.</p> : (
+       {isLoading ? <p className="text-gray-500">Đang tải danh sách công việc...</p> : visibleJobs.length === 0 ? <p className="text-gray-500">Chưa có job posting.</p> : (
          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-           {jobs.map((job) => (
+           {visibleJobs.map((job) => (
              <div key={job.id}>
-               <JobCard
-                 jobId={job.id}
-                 title={job.title}
-                 department="Chưa phân loại"
-                 location="Chưa cập nhật"
-                 status={job.status === "PUBLISHED" ? "OPEN" : job.status}
-                 applicantsCount={job.applicantsCount}
-               />
-               <div className="mt-2 flex gap-2 text-sm">
-                 {(role === "ADMIN" || role === "RECRUITER") && <button onClick={() => { setEditingJob(job); setEditTitle(job.title); setEditDescription(job.description); }} className="text-blue-700 hover:underline">Chỉnh sửa</button>}
-                 {job.status !== "PUBLISHED" && <button onClick={() => void changeJobStatus(job, "PUBLISHED")} className="text-green-700 hover:underline">Publish</button>}
-                 {job.status !== "CLOSED" && <button onClick={() => void changeJobStatus(job, "CLOSED")} className="text-red-700 hover:underline">Close</button>}
-                 {job.status === "CLOSED" && <button onClick={() => void changeJobStatus(job, "DRAFT")} className="text-blue-700 hover:underline">Mở lại bản nháp</button>}
-               </div>
+               {candidateView ? <div className="rounded-md border border-gray-200 bg-white p-5 shadow-sm">
+                 <div className="flex items-start justify-between gap-4">
+                   <h3 className="text-lg font-bold text-[#1D4ED8]">{job.title}</h3>
+                   <span className="rounded-full bg-[#059669] px-2 py-1 text-xs font-semibold text-white">OPEN</span>
+                 </div>
+                 <div className="mt-6 border-t border-gray-100 pt-4 text-right">
+                   <Link href={`/apply?jobId=${job.id}`} className="text-sm font-medium text-[#1D4ED8] hover:underline">Xem chi tiết →</Link>
+                 </div>
+               </div> : <>
+                 <JobCard
+                   jobId={job.id}
+                   title={job.title}
+                   department="Chưa phân loại"
+                   location="Chưa cập nhật"
+                   status={job.status === "PUBLISHED" ? "OPEN" : job.status}
+                   applicantsCount={job.applicantsCount}
+                 />
+                 <div className="mt-2 flex gap-2 text-sm">
+                   {(userRole === "ADMIN" || userRole === "RECRUITER") && <button onClick={() => { setEditingJob(job); setEditTitle(job.title); setEditDescription(job.description); }} className="text-blue-700 hover:underline">Chỉnh sửa</button>}
+                   {job.status !== "PUBLISHED" && <button onClick={() => void changeJobStatus(job, "PUBLISHED")} className="text-green-700 hover:underline">Publish</button>}
+                   {job.status !== "CLOSED" && <button onClick={() => void changeJobStatus(job, "CLOSED")} className="text-red-700 hover:underline">Close</button>}
+                   {job.status === "CLOSED" && <button onClick={() => void changeJobStatus(job, "DRAFT")} className="text-blue-700 hover:underline">Mở lại bản nháp</button>}
+                 </div>
+               </>}
              </div>
            ))}
          </div>

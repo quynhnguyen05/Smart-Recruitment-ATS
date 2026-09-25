@@ -42,7 +42,7 @@ export const PATCH = withErrorHandler(
 
     await logAudit(authResult.userId, 'UPDATE_USER', 'User', id, parsed.data);
 
-    const { passwordHash: _omit, ...safeUser } = updated;
-    return NextResponse.json(safeUser);
+    const { id: userId, email: userEmail, role: userRole, disabled, createdAt } = updated;
+    return NextResponse.json({ id: userId, email: userEmail, role: userRole, disabled, createdAt });
   }
 );

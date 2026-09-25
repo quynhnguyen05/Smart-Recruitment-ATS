@@ -24,6 +24,8 @@ export const GET = withErrorHandler(async (req: Request) => {
 
   return NextResponse.json(jobs.map(({ _count, ...job }) => ({
     ...job,
+    jobCode: `JOB-${job.id.slice(0, 6).toUpperCase()}`,
+    department: 'Chưa phân loại',
     applicantsCount: _count.applications,
   })));
 });
