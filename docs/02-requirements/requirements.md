@@ -10,7 +10,7 @@
 | **REQ-ATS-04** | FR | AI sinh **CV Summary** cho Recruiter tham khảo trong quá trình Screening. | **Must** |
 | **REQ-ATS-05** | FR | AI tính **Match Score** giữa CV và JD kèm lý do, bao gồm **Matched Skills** và **Gaps**. | **Must** |
 | **REQ-ATS-06** | FR | Recruiter xem CV Summary + Match Score và quyết định **Screen Pass/Reject**; AI không được tự quyết định. | **Must** |
-| **REQ-ATS-07** | FR | Recruiter/Interviewer lên lịch **Interview Round** cho Application đã Pass Screening. | **Must** |
+| **REQ-ATS-07** | FR | Recruiter lên lịch Interview Round cho Application đã Pass Screening. | **Must** |
 | **REQ-ATS-08** | FR | AI gợi ý bộ câu hỏi phỏng vấn dựa trên JD + CV; Interviewer có thể sửa hoặc loại bỏ câu hỏi. | **Must** |
 | **REQ-ATS-09** | FR | Interviewer điền **Scorecard** sau phỏng vấn, gồm tiêu chí, điểm số và ghi chú. | **Must** |
 | **REQ-ATS-10** | FR | Hiring Manager xem tổng hợp Scorecard từ các vòng phỏng vấn và ra quyết định **Offer/Reject**. | **Must** |
