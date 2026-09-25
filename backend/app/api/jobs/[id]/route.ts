@@ -9,6 +9,8 @@ import { logAudit } from '@/lib/auditLog';
 const prisma = new PrismaClient();
 const updateSchema = z.object({
   title: z.string().min(1).optional(),
+  department: z.string().min(1).optional(),
+  location: z.string().min(1).optional(),
   description: z.string().min(1).optional(),
   requirements: z.string().min(1).optional(),
   status: z.nativeEnum(JobStatus).optional(),

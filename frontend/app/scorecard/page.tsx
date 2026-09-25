@@ -83,7 +83,7 @@ export default function ScorecardPage() {
       <div className="w-[60%] bg-gray-100 border-r border-gray-200 p-4 flex flex-col">
         <h2 className="text-lg font-bold text-gray-700 mb-2">CV Ứng viên: {interview?.application.job.title || "Đang tải..."}</h2>
         <div className="flex-1 bg-white border border-gray-300 shadow-sm rounded-md flex items-center justify-center">
-          {cvText ? <pre className="w-full h-full overflow-auto whitespace-pre-wrap p-6 text-sm text-gray-700">{cvText}</pre> : cvUrl && cvContentType === "application/pdf" ? <iframe src={cvUrl} title="CV ứng viên" className="w-full h-full" /> : cvUrl ? <div className="text-center p-6"><p className="text-gray-600 mb-4">DOCX không hỗ trợ xem trực tiếp.</p><a href={cvUrl} download className="px-4 py-2 bg-blue-700 text-white rounded-md">Tải CV xuống</a></div> : <p className="text-gray-400 font-medium">{error || "Đang tải CV..."}</p>}
+          {cvText ? <pre className="w-full h-full overflow-auto whitespace-pre-wrap p-6 text-sm text-gray-700">{cvText}</pre> : cvUrl && cvContentType === "application/pdf" ? <iframe src={cvUrl} title="CV ứng viên" className="w-full h-full" /> : cvUrl ? <div className="text-center p-6"><p className="text-gray-600 mb-4">File này không hỗ trợ xem trực tiếp.</p><a href={cvUrl} download className="px-4 py-2 bg-blue-700 text-white rounded-md">Tải CV xuống</a></div> : <p className="text-gray-400 font-medium">{error || "Đang tải CV..."}</p>}
         </div>
       </div>
 

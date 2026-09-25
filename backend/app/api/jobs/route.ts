@@ -9,6 +9,8 @@ const prisma = new PrismaClient();
 
 const jobSchema = z.object({
   title: z.string().min(1),
+  department: z.string().trim().min(1).default('Khác'),
+  location: z.string().trim().min(1).default('Toàn quốc'),
   description: z.string().min(1),
   requirements: z.string().min(1),
 });
@@ -25,7 +27,6 @@ export const GET = withErrorHandler(async (req: Request) => {
   return NextResponse.json(jobs.map(({ _count, ...job }) => ({
     ...job,
     jobCode: `JOB-${job.id.slice(0, 6).toUpperCase()}`,
-    department: 'Chưa phân loại',
     applicantsCount: _count.applications,
   })));
 });

@@ -1,0 +1,14 @@
+CV-01 — Backend Developer, rất phù hợp
+Tên: Nguyễn Minh Anh
+Vị trí: Backend Developer
+years_of_experience: 3
+Skills:
+Java
+Spring Boot
+REST API
+PostgreSQL
+Redis
+Docker
+Git
+Microservices
+Education: Cử nhân Công nghệ Thông tin, Đại học Bách Khoa Đà Nẵng

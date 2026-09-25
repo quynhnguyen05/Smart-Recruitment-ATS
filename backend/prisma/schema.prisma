@@ -70,6 +70,8 @@ model User {
 model JobPosting {
   id           String    @id @default(uuid())
   title        String
+  department   String    @default("Khác")
+  location     String    @default("Toàn quốc")
   description  String
   requirements String
   status       JobStatus @default(DRAFT)
@@ -84,7 +86,7 @@ model JobPosting {
 model Application {
   id                  String             @id @default(uuid())
   jobId               String             @map("job_id")
-  job                 JobPosting         @relation(fields: [jobId], references: [id])
+  job                 JobPosting         @relation(fields: [jobId], references: [id], onDelete: Cascade)
   candidateId         String             @map("candidate_id")
   cvUrl               String             @map("cv_url")
   status              ApplicationStatus  @default(NEW)
@@ -102,7 +104,7 @@ model Application {
 model MatchResult {
   id            String             @id @default(uuid())
   applicationId String             @map("application_id")
-  application   Application        @relation(fields: [applicationId], references: [id])
+  application   Application        @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   status        MatchResultStatus
   matchScore    Int?               @map("match_score")
   matchedSkills Json?              @map("matched_skills")
@@ -116,7 +118,7 @@ model MatchResult {
 model InterviewRound {
   id            String                @id @default(uuid())
   applicationId String                @map("application_id")
-  application   Application           @relation(fields: [applicationId], references: [id])
+  application   Application           @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   interviewerId String                @map("interviewer_id")
   scheduledAt   DateTime              @map("scheduled_at")
   status        InterviewRoundStatus  @default(SCHEDULED)
@@ -130,7 +132,7 @@ model InterviewRound {
 model InterviewQuestion {
   id            String                    @id @default(uuid())
   interviewId   String                    @map("interview_id")
-  interview     InterviewRound            @relation(fields: [interviewId], references: [id])
+  interview     InterviewRound            @relation(fields: [interviewId], references: [id], onDelete: Cascade)
   questionText  String                    @map("question_text")
   isAiGenerated Boolean                   @default(false) @map("is_ai_generated")
   status        InterviewQuestionStatus
@@ -141,7 +143,7 @@ model InterviewQuestion {
 model Scorecard {
   id            String         @id @default(uuid())
   interviewId   String         @unique @map("interview_id")
-  interview     InterviewRound @relation(fields: [interviewId], references: [id])
+  interview     InterviewRound @relation(fields: [interviewId], references: [id], onDelete: Cascade)
   interviewerId String         @map("interviewer_id")
   score         Int
   notes         String?
@@ -153,7 +155,7 @@ model Scorecard {
 model Offer {
   id             String      @id @default(uuid())
   applicationId  String      @unique @map("application_id")
-  application    Application @relation(fields: [applicationId], references: [id])
+  application    Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   salary         Decimal
   status         OfferStatus @default(DRAFT)
   confirmedByHm  String?     @map("confirmed_by_hm")

@@ -31,12 +31,13 @@ export default function ApplyJobPage() {
     setError("");
     
     if (selectedFile) {
-      // Validate NFR: Chỉ nhận PDF/DOCX (Phòng hờ nếu user cố tình kéo thả file sai)
+      // Validate CV format before uploading.
       const fileName = selectedFile.name.toLowerCase();
       const isPdf = selectedFile.type === "application/pdf" || fileName.endsWith(".pdf");
       const isDocx = selectedFile.type.includes("wordprocessingml") || selectedFile.type.includes("msword") || fileName.endsWith(".doc") || fileName.endsWith(".docx");
-      if (!isPdf && !isDocx) {
-        setError("Chỉ hỗ trợ định dạng PDF hoặc DOCX.");
+      const isText = selectedFile.type === "text/plain" || fileName.endsWith(".txt");
+      if (!isPdf && !isDocx && !isText) {
+        setError("Chỉ hỗ trợ định dạng PDF, DOCX hoặc TXT.");
         setFile(null);
         return;
       }
@@ -112,7 +113,7 @@ export default function ApplyJobPage() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Vị trí ứng tuyển <span className="text-red-500">*</span></label>
             <select required value={jobId} onChange={(event) => setJobId(event.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-md" disabled={jobs.length === 0}>
-              {jobs.length === 0 ? <option value="">Đang tải job đang mở...</option> : jobs.map((job) => <option key={job.id} value={job.id}>{job.jobCode || `JOB-${job.id.slice(0, 6).toUpperCase()}`} - {job.title} - {job.department || "Chưa phân loại"}</option>)}
+              {jobs.length === 0 ? <option value="">Đang tải job đang mở...</option> : jobs.map((job) => <option key={job.id} value={job.id}>{job.jobCode || `JOB-${job.id.slice(0, 6).toUpperCase()}`} - {job.title}</option>)}
             </select>
           </div>
           <div>
@@ -131,7 +132,7 @@ export default function ApplyJobPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tải lên CV (PDF, DOCX) <span className="text-red-500">*</span>
+              Tải lên CV (PDF, DOCX, TXT) <span className="text-red-500">*</span>
             </label>
             <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
               <div className="space-y-1 text-center">
@@ -146,7 +147,7 @@ export default function ApplyJobPage() {
                       type="file" 
                       className="sr-only" 
                       onChange={handleFileChange} 
-                      accept="application/pdf, .doc, .docx, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
+                      accept=".pdf,.txt,.doc,.docx,application/pdf,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
                     />
                   </label>
                 </div>

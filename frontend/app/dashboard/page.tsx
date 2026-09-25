@@ -9,6 +9,8 @@ import { apiFetch } from "@/core/api";
 type Job = {
   id: string;
   title: string;
+  department: string;
+  location: string;
   description: string;
   requirements: string;
   status: "DRAFT" | "PUBLISHED" | "CLOSED";
@@ -103,8 +105,6 @@ export default function DashboardPage() {
                  <JobCard
                    jobId={job.id}
                    title={job.title}
-                   department="Chưa phân loại"
-                   location="Chưa cập nhật"
                    status={job.status === "PUBLISHED" ? "OPEN" : job.status}
                    applicantsCount={job.applicantsCount}
                  />

@@ -5,14 +5,12 @@ import { useRouter } from 'next/navigation';
 
 interface JobCardProps {
   title: string;
-  department: string;
-  location: string;
   status: 'OPEN' | 'CLOSED' | 'DRAFT';
   applicantsCount: number;
   jobId: string;
 }
 
-export default function JobCard({ title, department, location, status, applicantsCount, jobId }: JobCardProps) {
+export default function JobCard({ title, status, applicantsCount, jobId }: JobCardProps) {
   const router = useRouter();
   // Mapping màu sắc chuẩn Design Tokens (Output #16)
   const statusColors = {
@@ -26,7 +24,6 @@ export default function JobCard({ title, department, location, status, applicant
       <div className="flex justify-between items-start mb-4">
         <div>
           <h3 className="text-lg font-bold text-[#1D4ED8]">{title}</h3>
-          <p className="text-sm text-gray-500 mt-1">{department} • {location}</p>
         </div>
         <span className={`text-xs font-semibold px-2 py-1 rounded-full ${statusColors[status]}`}>
           {status}

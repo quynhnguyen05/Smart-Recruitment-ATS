@@ -58,7 +58,7 @@ export const POST = withErrorHandler(async (req: Request) => {
     candidateId: form.get('candidateId') || undefined,
   });
   if (!parsed.success) throw new ValidationError('Thiếu jobId hợp lệ. Hãy chọn một vị trí đang tuyển.');
-  if (!(file instanceof File)) throw new ValidationError('Thiếu file CV. Hãy chọn lại file PDF hoặc DOCX.');
+  if (!(file instanceof File)) throw new ValidationError('Thiếu file CV. Hãy chọn lại file PDF, DOCX hoặc TXT.');
   if (file.size === 0 || file.size > 5 * 1024 * 1024) throw new ValidationError('CV phải có dung lượng từ 1 byte đến 5MB');
   const fileName = file.name.toLowerCase();
   const isPdf = file.type === 'application/pdf' || fileName.endsWith('.pdf');
@@ -66,8 +66,9 @@ export const POST = withErrorHandler(async (req: Request) => {
     || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     || fileName.endsWith('.doc')
     || fileName.endsWith('.docx');
-  if (!isPdf && !isDocx) {
-    throw new ValidationError('CV chỉ hỗ trợ PDF hoặc DOCX');
+  const isText = file.type === 'text/plain' || fileName.endsWith('.txt');
+  if (!isPdf && !isDocx && !isText) {
+    throw new ValidationError('CV chỉ hỗ trợ PDF, DOCX hoặc TXT');
   }
 
   const candidateId = parsed.data.candidateId || authResult.userId;
@@ -80,7 +81,7 @@ export const POST = withErrorHandler(async (req: Request) => {
   const existing = await prisma.application.findUnique({ where: { one_application_per_job_per_candidate: { jobId: parsed.data.jobId, candidateId } } });
   if (existing) throw new ConflictError('APPLICATION_ALREADY_EXISTS', 'Bạn đã ứng tuyển job này');
 
-  const extension = isPdf ? 'pdf' : 'docx';
+  const extension = isPdf ? 'pdf' : isText ? 'txt' : 'docx';
   const storedName = `${crypto.randomUUID()}.${extension}`;
   const storageDir = path.join(process.cwd(), 'storage', 'cv');
   await mkdir(storageDir, { recursive: true });

@@ -23,6 +23,8 @@ export default function CreateJobPage() {
         method: "POST",
         body: JSON.stringify({
           title: formData.title,
+          department: formData.department || "Khác",
+          location: formData.location || "Toàn quốc",
           description: formData.description,
           requirements: formData.description,
         }),
@@ -55,8 +57,20 @@ export default function CreateJobPage() {
               <option value="Engineering">Engineering</option>
               <option value="Product">Product</option>
               <option value="Design">Design</option>
+              <option value="Khác">Khác</option>
             </select>
           </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Địa điểm</label>
+          <select value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#1D4ED8] focus:border-[#1D4ED8]">
+            <option value="">Chọn địa điểm...</option>
+            <option value="Hà Nội">Hà Nội</option>
+            <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+            <option value="Remote">Remote</option>
+            <option value="Toàn quốc">Toàn quốc</option>
+          </select>
         </div>
 
         <div>
