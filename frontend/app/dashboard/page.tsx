@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [userRole, setUserRole] = useState("");
+  const [newApplicationsCount, setNewApplicationsCount] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [editTitle, setEditTitle] = useState("");
@@ -47,6 +48,12 @@ export default function DashboardPage() {
       .then(setJobs)
       .catch((loadError) => setError(loadError instanceof Error ? loadError.message : "Không thể tải danh sách công việc"))
       .finally(() => setIsLoading(false));
+
+    apiFetch<{status: string}[]>("/api/applications")
+      .then((apps) => {
+        setNewApplicationsCount(apps.filter(app => app.status === "NEW").length);
+      })
+      .catch(console.error);
   }, []);
 
   const saveJob = async (event: React.FormEvent) => {
@@ -65,14 +72,14 @@ export default function DashboardPage() {
   const candidateView = userRole === "CANDIDATE";
   const visibleJobs = candidateView ? jobs.filter((job) => job.status === "PUBLISHED") : jobs;
   const openJobs = visibleJobs.filter((job) => job.status === "PUBLISHED").length;
-  const applicantCount = jobs.reduce((total, job) => total + job.applicantsCount, 0);
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Bảng điều khiển (Dashboard)</h1>
       <div className="mb-8 flex flex-wrap gap-3">
-        {isMounted && !candidateView && (userRole === "ADMIN" || userRole === "RECRUITER") && <><button onClick={() => router.push("/create-job")} className="px-4 py-2 bg-[#1D4ED8] text-white rounded-md">Tạo vị trí mới</button><button onClick={() => router.push("/cv-review")} className="px-4 py-2 border border-blue-200 text-blue-700 rounded-md">Xem hồ sơ ứng tuyển</button><button onClick={() => router.push("/scorecard-summary")} className="px-4 py-2 border border-green-200 text-green-700 rounded-md">Tổng hợp scorecard</button></>}
-        {isMounted && !candidateView && (userRole === "HIRING_MANAGER" || userRole === "INTERVIEWER") && <><button onClick={() => router.push("/schedule-interview")} className="px-4 py-2 bg-[#059669] text-white rounded-md">Lịch phỏng vấn</button><button onClick={() => router.push("/scorecard-summary")} className="px-4 py-2 border border-green-200 text-green-700 rounded-md">Tổng hợp scorecard</button></>}
+        {isMounted && !candidateView && (userRole === "ADMIN" || userRole === "RECRUITER") && <><button onClick={() => router.push("/create-job")} className="px-4 py-2 bg-[#1D4ED8] text-white rounded-md">Tạo vị trí mới</button><button onClick={() => router.push("/cv-review")} className="px-4 py-2 border border-blue-200 text-blue-700 rounded-md">Xem hồ sơ ứng tuyển</button></>}
+        {isMounted && !candidateView && userRole === "ADMIN" && <button onClick={() => router.push("/scorecard-summary")} className="px-4 py-2 border border-green-200 text-green-700 rounded-md">Tổng hợp scorecard</button>}
+        {isMounted && !candidateView && userRole === "HIRING_MANAGER" && <><button onClick={() => router.push("/scorecard-summary")} className="px-4 py-2 bg-[#059669] text-white rounded-md">Tổng hợp scorecard</button><button onClick={() => router.push("/offer-approval")} className="px-4 py-2 border border-blue-200 text-blue-700 rounded-md">Phê duyệt offer</button></>}
       </div>
       {!candidateView && <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="p-6 bg-white shadow rounded-lg border-t-4 border-[#1D4ED8]">
@@ -81,7 +88,7 @@ export default function DashboardPage() {
         </div>
         <button onClick={() => router.push("/cv-review")} className="p-6 bg-white shadow rounded-lg border-t-4 border-[#059669] text-left hover:shadow-md transition-shadow">
           <h2 className="text-xl font-semibold">CV cần duyệt (SCREENING)</h2>
-          <p className="text-3xl font-bold mt-4 text-[#059669]">{applicantCount}</p>
+          <p className="text-3xl font-bold mt-4 text-[#059669]">{newApplicationsCount}</p>
           <p className="text-sm text-blue-700 mt-2">Bấm để xem hồ sơ →</p>
         </button>
       </div>}
@@ -110,9 +117,13 @@ export default function DashboardPage() {
                  />
                  <div className="mt-2 flex gap-2 text-sm">
                    {(userRole === "ADMIN" || userRole === "RECRUITER") && <button onClick={() => { setEditingJob(job); setEditTitle(job.title); setEditDescription(job.description); }} className="text-blue-700 hover:underline">Chỉnh sửa</button>}
-                   {job.status !== "PUBLISHED" && <button onClick={() => void changeJobStatus(job, "PUBLISHED")} className="text-green-700 hover:underline">Publish</button>}
-                   {job.status !== "CLOSED" && <button onClick={() => void changeJobStatus(job, "CLOSED")} className="text-red-700 hover:underline">Close</button>}
-                   {job.status === "CLOSED" && <button onClick={() => void changeJobStatus(job, "DRAFT")} className="text-blue-700 hover:underline">Mở lại bản nháp</button>}
+                   {(userRole === "ADMIN" || userRole === "RECRUITER") && (
+                     <>
+                       {job.status !== "PUBLISHED" && <button onClick={() => void changeJobStatus(job, "PUBLISHED")} className="text-green-700 hover:underline">Publish</button>}
+                       {job.status !== "CLOSED" && <button onClick={() => void changeJobStatus(job, "CLOSED")} className="text-red-700 hover:underline">Close</button>}
+                       {job.status === "CLOSED" && <button onClick={() => void changeJobStatus(job, "DRAFT")} className="text-blue-700 hover:underline">Mở lại bản nháp</button>}
+                     </>
+                   )}
                  </div>
                </>}
              </div>

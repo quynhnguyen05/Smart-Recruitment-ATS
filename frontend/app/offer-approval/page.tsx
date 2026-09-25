@@ -72,9 +72,9 @@ function OfferApprovalContent() {
     if (!offer || confirmText !== "XAC NHAN") return;
     setIsSubmitting(true);
     try {
-      const confirmedOffer = await apiFetch<Offer>(`/api/offers/${offer.id}`, {
+      const confirmedOffer = await apiFetch<Offer>(`/api/offers/${offer.id}/confirm`, {
         method: "PATCH",
-        body: JSON.stringify({ status: "CONFIRMED" }),
+        body: JSON.stringify({ confirmationToken: confirmText }),
       });
       setOffer({ ...offer, ...confirmedOffer, status: "CONFIRMED" });
       setIsModalOpen(false);

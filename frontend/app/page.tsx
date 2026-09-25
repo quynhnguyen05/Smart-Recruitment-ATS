@@ -41,10 +41,12 @@ export default function LoginPage() {
       localStorage.setItem("role", data.role);
       
       if (data.role === 'CANDIDATE') {
-        router.push('/apply');
+        router.push('/jobs');
+      } else if (data.role === 'INTERVIEWER') {
+        router.push('/my-interviews');
       } else {
         router.push('/dashboard'); 
-      }      
+      }
       
       // router.push("/dashboard"); // Chuyển hướng người dùng sau khi xong UI nền
       

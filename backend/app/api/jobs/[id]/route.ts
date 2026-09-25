@@ -26,6 +26,9 @@ export const GET = withErrorHandler(async (req: Request, ctx: { params: Promise<
     include: { _count: { select: { applications: true } } },
   });
   if (!job) throw new NotFoundError('Không tìm thấy job posting');
+  if (authResult.role === 'CANDIDATE' && job.status !== 'PUBLISHED') {
+    throw new NotFoundError('Công việc này không tồn tại hoặc đã bị đóng');
+  }
 
   const { _count, ...jobData } = job;
   return NextResponse.json({ ...jobData, applicantsCount: _count.applications });

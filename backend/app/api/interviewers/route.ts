@@ -9,8 +9,8 @@ export const GET = withErrorHandler(async (req: Request) => {
   const authResult = requireRole(['ADMIN', 'RECRUITER', 'HIRING_MANAGER'])(req);
   if (authResult instanceof NextResponse) return authResult;
   const interviewers = await prisma.user.findMany({
-    where: { role: 'INTERVIEWER', disabled: false },
-    select: { id: true, email: true },
+    where: { role: { in: ['INTERVIEWER', 'HIRING_MANAGER'] }, disabled: false },
+    select: { id: true, email: true, role: true },
     orderBy: { email: 'asc' },
   });
   return NextResponse.json(interviewers);

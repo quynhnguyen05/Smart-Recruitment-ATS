@@ -5,6 +5,7 @@ import { apiFetch } from "@/core/api";
 
 type Interview = {
   application: { id: string; cvUrl: string; job: { title: string } };
+  scheduledAt?: string;
 };
 
 type MatchResult = {
@@ -25,6 +26,7 @@ export default function ScorecardPage() {
   const [cvContentType, setCvContentType] = useState("");
   const [cvText, setCvText] = useState("");
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
@@ -68,7 +70,7 @@ export default function ScorecardPage() {
         method: "POST",
         body: JSON.stringify({ score: Number(technicalScore), notes }),
       });
-      router.replace("/scorecard-summary");
+      setSuccessMessage("Đã lưu đánh giá thành công!");
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Không thể lưu scorecard");
     } finally {
@@ -78,6 +80,18 @@ export default function ScorecardPage() {
 
   return (
     <div className="flex h-screen bg-surface-50 overflow-hidden">
+      {!interviewId ? (
+        <div className="flex w-full items-center justify-center">
+          <div className="text-center p-8 max-w-md bg-white rounded-lg shadow-sm border border-gray-200">
+            <h2 className="text-xl font-bold text-gray-800 mb-3">Chưa chọn lịch phỏng vấn</h2>
+            <p className="text-gray-600 mb-6">Vui lòng quay lại danh sách Lịch phỏng vấn của bạn để chọn một ứng viên cần đánh giá.</p>
+            <button onClick={() => router.push("/my-interviews")} className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700">
+              Đến Lịch phỏng vấn của tôi
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
       
       {/* CỘT TRÁI: 60% - Xem CV Ứng viên */}
       <div className="w-[60%] bg-gray-100 border-r border-gray-200 p-4 flex flex-col">
@@ -141,16 +155,42 @@ export default function ScorecardPage() {
             ></textarea>
           </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting || !interviewId}
-            className="w-full mt-4 bg-[#1D4ED8] hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-md transition-colors disabled:bg-gray-400"
-          >
-            {isSubmitting ? "Đang lưu..." : !interviewId ? "Đang tải vòng phỏng vấn..." : "Lưu đánh giá (Submit)"}
-          </button>
+          {(() => {
+            const isFutureInterview = interview?.scheduledAt ? new Date(interview.scheduledAt) > new Date() : false;
+            return (
+              <button
+                type="submit"
+                disabled={isSubmitting || !interviewId || isFutureInterview}
+                className={`w-full mt-4 text-white font-bold py-3 px-4 rounded-md transition-colors ${isFutureInterview ? "bg-gray-400 cursor-not-allowed" : "bg-[#1D4ED8] hover:bg-blue-800 disabled:bg-gray-400"}`}
+              >
+                {isSubmitting ? "Đang lưu..." : !interviewId ? "Đang tải vòng phỏng vấn..." : isFutureInterview ? "Chưa đến thời gian phỏng vấn" : "Lưu đánh giá (Submit)"}
+              </button>
+            );
+          })()}
         </form>
       </div>
       
+      {successMessage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white p-6 rounded-md shadow-lg max-w-sm w-full text-center">
+            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+              <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">{successMessage}</h3>
+            <p className="text-sm text-gray-500 mb-6">Hệ thống đã ghi nhận điểm và nhận xét của bạn.</p>
+            <button
+              onClick={() => router.replace("/my-interviews")}
+              className="w-full inline-flex justify-center rounded-md border border-transparent bg-[#1D4ED8] px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-800 sm:text-sm"
+            >
+              Quay lại danh sách
+            </button>
+          </div>
+        </div>
+      )}
+        </>
+      )}
     </div>
   );
 }

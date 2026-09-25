@@ -9,6 +9,25 @@ import { logAudit } from '@/lib/auditLog';
 const prisma = new PrismaClient();
 const updateSchema = z.object({ status: z.nativeEnum(ApplicationStatus) });
 
+export const GET = withErrorHandler(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
+  const authResult = requireRole(['ADMIN', 'RECRUITER', 'HIRING_MANAGER', 'INTERVIEWER', 'CANDIDATE'])(req);
+  if (authResult instanceof NextResponse) return authResult;
+
+  const { id } = await ctx.params;
+  const application = await prisma.application.findUnique({
+    where: { id },
+    include: { job: true },
+  });
+  if (!application) throw new NotFoundError('Không tìm thấy application');
+
+  // Candidate only views own application
+  if (authResult.role === 'CANDIDATE' && application.candidateId !== authResult.userId) {
+    throw new NotFoundError('Không tìm thấy application');
+  }
+
+  return NextResponse.json(application);
+});
+
 export const PATCH = withErrorHandler(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
   const authResult = requireRole(['ADMIN', 'RECRUITER', 'HIRING_MANAGER'])(req);
   if (authResult instanceof NextResponse) return authResult;

@@ -26,8 +26,11 @@ export default function JobDetailPage() {
   const [job, setJob] = useState<Job | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [userRole, setUserRole] = useState("");
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setUserRole(localStorage.getItem("role") || "");
     if (!params.id) return;
     apiFetch<Job>(`/api/jobs/${params.id}`)
       .then(setJob)
@@ -67,7 +70,7 @@ export default function JobDetailPage() {
             <p className="whitespace-pre-wrap text-gray-700 leading-7">{job.requirements}</p>
           </section>
 
-          {job.status === "PUBLISHED" && (
+          {job.status === "PUBLISHED" && userRole === "CANDIDATE" && (
             <div className="mt-8 pt-6 border-t border-gray-100">
               <button onClick={() => router.push(`/apply?jobId=${job.id}`)} className="px-6 py-3 bg-[#1D4ED8] text-white font-bold rounded-md hover:bg-blue-800">
                 Ứng tuyển vị trí này

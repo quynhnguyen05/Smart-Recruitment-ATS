@@ -21,18 +21,23 @@ function keywords(value: string) {
 }
 
 async function readCv(applicationCvUrl: string) {
-  const isRemote = /^https?:\/\//i.test(applicationCvUrl);
-  const fileName = isRemote ? path.basename(new URL(applicationCvUrl).pathname) : path.basename(applicationCvUrl);
-  const extension = path.extname(fileName).toLowerCase();
-  const buffer = isRemote
-    ? Buffer.from(await (await fetch(applicationCvUrl)).arrayBuffer())
-    : await readFile(path.join(process.cwd(), 'storage', 'cv', fileName));
+  try {
+    const isRemote = /^https?:\/\//i.test(applicationCvUrl);
+    const fileName = isRemote ? path.basename(new URL(applicationCvUrl).pathname) : path.basename(applicationCvUrl);
+    const extension = path.extname(fileName).toLowerCase();
+    const buffer = isRemote
+      ? Buffer.from(await (await fetch(applicationCvUrl)).arrayBuffer())
+      : await readFile(path.join(process.cwd(), 'storage', 'cv', fileName));
 
-  if (extension === '.txt') return { text: buffer.toString('utf8'), supported: true };
-  if (extension !== '.pdf') return { text: '', supported: false };
-  const parsed = await pdfParse(buffer);
-  return { text: parsed.text, supported: true };
+    if (extension === '.txt') return { text: buffer.toString('utf8'), supported: true };
+    if (extension !== '.pdf') return { text: '', supported: false };
+    const parsed = await pdfParse(buffer);
+    return { text: parsed.text, supported: true };
+  } catch {
+    return { text: '', supported: false };
+  }
 }
+
 
 export const GET = withErrorHandler(async (req: Request, ctx: { params: Promise<{ id: string }> }) => {
   const authResult = requireRole(['ADMIN', 'RECRUITER', 'INTERVIEWER', 'HIRING_MANAGER'])(req);

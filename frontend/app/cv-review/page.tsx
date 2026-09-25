@@ -31,13 +31,41 @@ export default function CVReviewPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCvLoading, setIsCvLoading] = useState(false);
   const [match, setMatch] = useState<MatchResult | null>(null);
+  const [showSummary, setShowSummary] = useState(false);
+  const [summaryData, setSummaryData] = useState<{ parsedData?: { skills: string[]; experience: string[] }; error?: string } | null>(null);
+  const [isSummaryLoading, setIsSummaryLoading] = useState(false);
   const router = useRouter();
+
+  const handleShowSummary = async () => {
+    if (showSummary) {
+      setShowSummary(false);
+      return;
+    }
+    setShowSummary(true);
+    if (!summaryData) {
+      setIsSummaryLoading(true);
+      try {
+        const res = await fetch(`/api/applications/${selectedId}/summary`);
+        const data = await res.json();
+        if (data.success) {
+          setSummaryData({ parsedData: data.parsedData });
+        } else {
+          setSummaryData({ error: data.message });
+        }
+      } catch (err) {
+        setSummaryData({ error: "Lỗi kết nối tới AI Service" });
+      } finally {
+        setIsSummaryLoading(false);
+      }
+    }
+  };
 
   useEffect(() => {
     apiFetch<Application[]>("/api/applications")
       .then((items) => {
-        setApplications(items);
-        setSelectedId(items[0]?.id || "");
+        const newApps = items.filter(item => item.status === "NEW");
+        setApplications(newApps);
+        setSelectedId(newApps[0]?.id || "");
       })
       .catch((loadError) => setError(loadError instanceof Error ? loadError.message : "Không thể tải hồ sơ"))
       .finally(() => setIsLoading(false));
@@ -75,7 +103,21 @@ export default function CVReviewPage() {
     if (!selectedApplication) return;
     try {
       await apiFetch(`/api/applications/${selectedApplication.id}`, { method: "PATCH", body: JSON.stringify({ status }) });
-      router.push(status === "SCREENING_PASSED" ? `/schedule-interview?applicationId=${selectedApplication.id}` : "/dashboard");
+      if (status === "SCREENING_PASSED") {
+        router.push(`/schedule-interview?applicationId=${selectedApplication.id}`);
+      } else {
+        const remaining = applications.filter(app => app.id !== selectedApplication.id);
+        setApplications(remaining);
+        if (remaining.length > 0) {
+          setSelectedId(remaining[0].id);
+          setCvUrl(""); setCvContentType(""); setCvText(""); setMatch(null);
+          setShowSummary(false); setSummaryData(null);
+        } else {
+          setSelectedId("");
+          setCvUrl(""); setCvContentType(""); setCvText(""); setMatch(null);
+          setShowSummary(false); setSummaryData(null);
+        }
+      }
     } catch (updateError) {
       setError(updateError instanceof Error ? updateError.message : "Không thể cập nhật trạng thái hồ sơ");
     }
@@ -83,14 +125,56 @@ export default function CVReviewPage() {
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* CỘT TRÁI: 60% Hiển thị CV gốc */}
+      {/* CỘT TRÁI: 60% Hiển thị CV gốc hoặc Tóm tắt */}
       <div className="w-[60%] bg-gray-100 border-r border-gray-200 p-4 flex flex-col">
-        <h2 className="text-lg font-bold text-gray-700 mb-2">CV Ứng viên</h2>
-        {isLoading ? <p className="text-gray-500">Đang tải danh sách đơn...</p> : applications.length > 0 && <select value={selectedId} onChange={(event) => { setCvUrl(""); setCvContentType(""); setCvText(""); setMatch(null); setSelectedId(event.target.value); }} className="mb-2 border rounded-md p-2">
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-lg font-bold text-gray-700">CV Ứng viên</h2>
+          {selectedId && applications.length > 0 && (
+            <button 
+              onClick={handleShowSummary}
+              className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-colors ${showSummary ? 'bg-gray-200 text-gray-800 border border-gray-300 hover:bg-gray-300' : 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm'}`}
+            >
+              {showSummary ? 'Hoàn tác (Xem CV Gốc)' : '✨ Tóm tắt CV (AI)'}
+            </button>
+          )}
+        </div>
+        {isLoading ? <p className="text-gray-500 mb-2">Đang tải danh sách đơn...</p> : applications.length > 0 && <select value={selectedId} onChange={(event) => { setCvUrl(""); setCvContentType(""); setCvText(""); setMatch(null); setShowSummary(false); setSummaryData(null); setSelectedId(event.target.value); }} className="mb-2 border rounded-md p-2">
           {applications.map((application) => <option key={application.id} value={application.id}>{application.candidateEmail} - {application.job.title} - {application.status}</option>)}
         </select>}
-        <div className="flex-1 bg-white border border-gray-300 shadow-sm rounded-md flex items-center justify-center">
-          {isCvLoading ? <p className="text-gray-500">Đang tải CV...</p> : cvText ? <pre className="w-full h-full overflow-auto whitespace-pre-wrap p-6 text-sm text-gray-700">{cvText}</pre> : cvUrl && cvContentType === "application/pdf" ? <iframe src={cvUrl} title="CV ứng viên" className="w-full h-full" /> : cvUrl ? <div className="text-center p-6"><p className="text-gray-600 mb-4">File này không hỗ trợ xem trực tiếp trong trình duyệt.</p><a href={cvUrl} download className="inline-block px-4 py-2 bg-blue-700 text-white rounded-md">Tải CV xuống</a></div> : <p className="text-gray-400 font-medium">{error || (applications.length === 0 ? "Chưa có đơn ứng tuyển" : "Chưa có file CV")}</p>}
+        <div className="flex-1 bg-white border border-gray-300 shadow-sm rounded-md flex flex-col overflow-hidden">
+          {showSummary ? (
+            <div className="p-8 h-full overflow-y-auto">
+              {isSummaryLoading ? (
+                <div className="flex items-center justify-center h-full text-gray-500">Đang tóm tắt CV bằng AI...</div>
+              ) : summaryData?.error ? (
+                <div className="text-red-500 bg-red-50 p-4 rounded-md">{summaryData.error}</div>
+              ) : summaryData?.parsedData ? (
+                <div className="space-y-6">
+                  <div className="p-4 bg-purple-50 text-purple-700 rounded-md text-sm font-medium flex items-center gap-2">
+                    ✨ Thông tin được trích xuất tự động bởi AI
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 border-b pb-2 mb-3">Kỹ năng cốt lõi (Skills)</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {summaryData.parsedData.skills.map((skill, i) => (
+                        <span key={i} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">{skill}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 border-b pb-2 mb-3">Kinh nghiệm (Experience)</h3>
+                    <ul className="list-disc pl-5 space-y-2 text-gray-700 text-sm leading-relaxed">
+                      {summaryData.parsedData.experience.map((exp, i) => (
+                        <li key={i}>{exp}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            isCvLoading ? <div className="flex items-center justify-center h-full"><p className="text-gray-500">Đang tải CV...</p></div> : cvText ? <pre className="w-full h-full overflow-auto whitespace-pre-wrap p-6 text-sm text-gray-700">{cvText}</pre> : cvUrl && cvContentType === "application/pdf" ? <iframe src={cvUrl} title="CV ứng viên" className="w-full h-full" /> : cvUrl ? <div className="text-center p-6 m-auto"><p className="text-gray-600 mb-4">File này không hỗ trợ xem trực tiếp trong trình duyệt.</p><a href={cvUrl} download className="inline-block px-4 py-2 bg-blue-700 text-white rounded-md">Tải CV xuống</a></div> : <div className="flex items-center justify-center h-full"><p className="text-gray-400 font-medium">{error || (applications.length === 0 ? "Chưa có đơn ứng tuyển" : "Chưa có file CV")}</p></div>
+          )}
         </div>
       </div>
 

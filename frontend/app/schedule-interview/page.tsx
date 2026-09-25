@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { apiFetch } from "@/core/api";
 
-type Interviewer = { id: string; email: string };
+type Interviewer = { id: string; email: string; role?: string };
 type Application = { id: string; candidateEmail: string; job: { title: string }; status: string };
 
 function getTodayDate() {
@@ -18,10 +18,12 @@ function ScheduleInterviewContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const requestedApplicationId = searchParams.get("applicationId") || "";
+  const [round, setRound] = useState("1");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [interviewer, setInterviewer] = useState("");
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [interviewers, setInterviewers] = useState<Interviewer[]>([]);
@@ -31,14 +33,16 @@ function ScheduleInterviewContent() {
   useEffect(() => {
     Promise.all([apiFetch<Interviewer[]>("/api/interviewers"), apiFetch<Application[]>("/api/applications")])
       .then(([availableInterviewers, availableApplications]) => {
-        setInterviewers(availableInterviewers);
-        setApplications(availableApplications);
+        const filteredInterviewers = availableInterviewers.filter((item) => item.role === "INTERVIEWER" || item.role === "HIRING_MANAGER");
+        setInterviewers(filteredInterviewers);
+
+        const passedApps = availableApplications.filter((item) => item.status === "SCREENING_PASSED");
+        setApplications(passedApps);
+
         if (requestedApplicationId) {
-          const selected = availableApplications.find((item) => item.id === requestedApplicationId);
+          const selected = passedApps.find((item) => item.id === requestedApplicationId);
           if (selected) setApplicationId(selected.id);
-          else setError("Không tìm thấy hồ sơ ứng viên được chọn.");
-        } else if (availableApplications[0]) {
-          setApplicationId(availableApplications[0].id);
+          else setError("Hồ sơ ứng viên được chọn không hợp lệ hoặc chưa qua vòng duyệt CV (SCREENING_PASSED).");
         }
       })
       .catch((loadError) => setError(loadError instanceof Error ? loadError.message : "Không thể tải dữ liệu lịch phỏng vấn"))
@@ -50,17 +54,30 @@ function ScheduleInterviewContent() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
+    setSuccessMessage("");
     setIsSubmitting(true);
     try {
       if (!applicationId) throw new Error("Vui lòng chọn hồ sơ ứng viên");
       const interview = await apiFetch<{ id: string }>("/api/interviews", {
         method: "POST",
-        body: JSON.stringify({ applicationId, interviewerId: interviewer, scheduledAt: new Date(`${date}T${time}:00`).toISOString() }),
+        body: JSON.stringify({
+          applicationId,
+          round: Number(round),
+          date,
+          time,
+          interviewerId: interviewer,
+          scheduledAt: new Date(`${date}T${time}:00`).toISOString()
+        }),
       });
       setDate("");
       setTime("");
       setInterviewer("");
-      router.push(`/scorecard?interviewId=${interview.id}`);
+      setRound("1");
+      setApplicationId("");
+      setSuccessMessage("Đã chốt lịch thành công!");
+      if (requestedApplicationId) {
+        router.replace("/schedule-interview");
+      }
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Không thể lên lịch phỏng vấn");
     } finally {
@@ -77,6 +94,7 @@ function ScheduleInterviewContent() {
         </div>
 
         {error && <div className="mb-6 rounded-md border border-red-200 bg-red-50 p-4 text-sm font-medium text-[#DC2626]">{error}</div>}
+        {successMessage && <div className="mb-6 rounded-md border border-green-200 bg-green-50 p-4 text-sm font-medium text-green-700">{successMessage}</div>}
         {isLoading && <p className="mb-6 text-gray-500">Đang tải dữ liệu...</p>}
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -85,6 +103,13 @@ function ScheduleInterviewContent() {
             <select required value={applicationId} onChange={(event) => setApplicationId(event.target.value)} disabled={Boolean(requestedApplicationId) || isLoading} className="w-full rounded-md border border-gray-300 px-4 py-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500">
               <option value="">Chọn hồ sơ cần phỏng vấn...</option>
               {applications.map((application) => <option key={application.id} value={application.id}>{application.candidateEmail} - {application.job.title} ({application.status})</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700">Vòng phỏng vấn <span className="text-red-500">*</span></label>
+            <select required value={round} onChange={(event) => setRound(event.target.value)} className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-[#1D4ED8] focus:ring-[#1D4ED8]">
+              <option value="1">Vòng 1 (Technical)</option>
+              <option value="2">Vòng 2 (Culture/HR)</option>
             </select>
           </div>
           <div className="grid grid-cols-2 gap-6">
@@ -101,7 +126,7 @@ function ScheduleInterviewContent() {
             <label className="mb-2 block text-sm font-medium text-gray-700">Người phỏng vấn (Interviewer) <span className="text-red-500">*</span></label>
             <select required value={interviewer} onChange={(event) => setInterviewer(event.target.value)} className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-[#1D4ED8] focus:ring-[#1D4ED8]">
               <option value="">Chọn người phỏng vấn...</option>
-              {interviewers.map((item) => <option key={item.id} value={item.id}>{item.email}</option>)}
+              {interviewers.map((item) => <option key={item.id} value={item.id}>{item.email} ({item.role})</option>)}
             </select>
           </div>
           <button type="submit" disabled={isLoading || isSubmitting || !selectedApplication} className="w-full rounded-md bg-[#059669] px-4 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-green-700 disabled:bg-gray-400">

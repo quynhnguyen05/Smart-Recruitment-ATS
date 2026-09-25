@@ -20,6 +20,7 @@ export const GET = withErrorHandler(async (req: Request) => {
   if (authResult instanceof NextResponse) return authResult;
 
   const jobs = await prisma.jobPosting.findMany({
+    where: authResult.role === 'CANDIDATE' ? { status: 'PUBLISHED' } : undefined,
     orderBy: { createdAt: 'desc' },
     include: { _count: { select: { applications: true } } },
   });

@@ -36,7 +36,6 @@ export default function ApplicationsPage() {
       <div className="max-w-5xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div><h1 className="text-3xl font-bold text-gray-900">Đơn ứng tuyển của tôi</h1><p className="text-gray-500 mt-1">Theo dõi trạng thái các vị trí đã ứng tuyển.</p></div>
-          <button onClick={() => router.push("/dashboard")} className="text-blue-700 hover:underline">Về Dashboard</button>
         </div>
         {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md">{error}</div>}
         <div className="space-y-4">

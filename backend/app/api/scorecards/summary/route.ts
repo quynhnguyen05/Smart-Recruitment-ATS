@@ -6,7 +6,7 @@ import { withErrorHandler } from '@/lib/withErrorHandler';
 const prisma = new PrismaClient();
 
 export const GET = withErrorHandler(async (req: Request) => {
-  const authResult = requireRole(['ADMIN', 'RECRUITER', 'HIRING_MANAGER', 'INTERVIEWER'])(req);
+  const authResult = requireRole(['ADMIN', 'HIRING_MANAGER'])(req);
   if (authResult instanceof NextResponse) return authResult;
 
   const interviews = await prisma.interviewRound.findMany({

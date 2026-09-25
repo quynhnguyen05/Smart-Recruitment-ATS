@@ -34,7 +34,7 @@ export const GET = withErrorHandler(async (req: Request) => {
 });
 
 export const POST = withErrorHandler(async (req: Request) => {
-  const authResult = requireRole(['ADMIN', 'RECRUITER', 'HIRING_MANAGER'])(req);
+  const authResult = requireRole(['ADMIN', 'RECRUITER'])(req);
   if (authResult instanceof NextResponse) return authResult;
 
   const parsed = createSchema.safeParse(await req.json());

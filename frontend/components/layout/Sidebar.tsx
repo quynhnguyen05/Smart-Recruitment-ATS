@@ -33,18 +33,22 @@ type NavGroup = {
 const navGroups: NavGroup[] = [
   {
     label: "Tổng quan",
-    roles: ["ADMIN", "RECRUITER", "CANDIDATE"],
-    items: [{ href: "/dashboard", label: "Bảng điều khiển", roles: ["ADMIN", "RECRUITER", "CANDIDATE"] }],
+    roles: ["ADMIN", "RECRUITER", "HIRING_MANAGER"],
+    items: [{ href: "/dashboard", label: "Bảng điều khiển", roles: ["ADMIN", "RECRUITER", "HIRING_MANAGER"] }],
+    icon: LayoutDashboard,
+  },
+  {
+    label: "Tổng quan",
+    roles: ["CANDIDATE"],
+    items: [{ href: "/jobs", label: "Danh sách công việc", roles: ["CANDIDATE"] }],
     icon: LayoutDashboard,
   },
   {
     label: "Tuyển dụng",
-    roles: ["ADMIN", "RECRUITER", "CANDIDATE"],
+    roles: ["ADMIN", "RECRUITER"],
     items: [
       { href: "/jobs", label: "Danh sách công việc", roles: ["ADMIN", "RECRUITER"] },
       { href: "/create-job", label: "Tạo công việc", roles: ["ADMIN", "RECRUITER"] },
-      { href: "/apply", label: "Ứng tuyển", roles: ["ADMIN"] },
-      { href: "/applications", label: "Đơn ứng tuyển", roles: ["ADMIN", "RECRUITER"] },
     ],
     icon: BriefcaseBusiness,
   },
@@ -56,10 +60,9 @@ const navGroups: NavGroup[] = [
   },
   {
     label: "Hồ sơ ứng viên",
-    roles: ["ADMIN", "RECRUITER", "HIRING_MANAGER"],
+    roles: ["ADMIN", "RECRUITER"],
     items: [
-      { href: "/cv-review", label: "Duyệt hồ sơ", roles: ["ADMIN", "RECRUITER", "HIRING_MANAGER"] },
-      { href: "/cv-summary", label: "Tóm tắt CV", roles: ["ADMIN", "RECRUITER", "HIRING_MANAGER"] },
+      { href: "/cv-review", label: "Duyệt hồ sơ", roles: ["ADMIN", "RECRUITER"] },
     ],
     icon: FileText,
   },
@@ -67,8 +70,9 @@ const navGroups: NavGroup[] = [
     label: "Phỏng vấn & đánh giá",
     roles: ["ADMIN", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER"],
     items: [
-      { href: "/schedule-interview", label: "Lịch phỏng vấn", roles: ["ADMIN", "RECRUITER", "HIRING_MANAGER", "INTERVIEWER"] },
-      { href: "/scorecard", label: "Scorecard", roles: ["ADMIN", "HIRING_MANAGER", "INTERVIEWER"] },
+      { href: "/my-interviews", label: "Lịch phỏng vấn của tôi", roles: ["INTERVIEWER"] },
+      { href: "/schedule-interview", label: "Lên lịch phỏng vấn", roles: ["ADMIN", "RECRUITER"] },
+      { href: "/scorecard", label: "Scorecard", roles: ["ADMIN", "INTERVIEWER"] },
       { href: "/scorecard-summary", label: "Tổng hợp scorecard", roles: ["ADMIN", "HIRING_MANAGER"] },
     ],
     icon: ClipboardCheck,
@@ -110,7 +114,13 @@ export default function Sidebar() {
     setOpenGroups((current) => ({ ...current, [label]: !current[label] }));
   };
 
-  const canSee = (roles?: string[]) => role === "ADMIN" || !roles || roles.includes(role);
+  const getHomeUrl = () => {
+    if (role === "CANDIDATE") return "/jobs";
+    if (role === "INTERVIEWER") return "/my-interviews";
+    return "/dashboard";
+  };
+
+  const canSee = (roles?: string[]) => !roles || roles.includes(role);
   const visibleGroups = navGroups
     .map((group) => ({ ...group, items: group.items.filter((item) => canSee(item.roles)) }))
     .filter((group) => canSee(group.roles) && group.items.length > 0);
@@ -119,7 +129,7 @@ export default function Sidebar() {
     <aside className={`group/sidebar relative w-full shrink-0 border-b border-slate-200 bg-slate-950 text-white transition-[width] duration-200 md:min-h-screen md:border-b-0 md:border-r md:border-slate-800 ${isCollapsed ? "md:w-20" : "md:w-[250px]"}`}>
       <div className="flex h-full flex-col md:sticky md:top-0 md:h-screen">
         <div className={`relative flex min-h-[88px] items-center border-b border-slate-800 ${isCollapsed ? "justify-center px-3" : "justify-between px-5"}`}>
-          <Link href="/dashboard" aria-label="HireFlow AI - Bảng điều khiển" className="min-w-0 text-lg font-bold tracking-tight">
+          <Link href={getHomeUrl()} aria-label="HireFlow AI - Bảng điều khiển" className="min-w-0 text-lg font-bold tracking-tight">
             {isCollapsed ? <span className="text-blue-400">HF</span> : <>HireFlow <span className="text-blue-400">AI</span></>}
             {!isCollapsed && <p className="mt-1 text-xs font-normal text-slate-400">Recruitment workspace</p>}
           </Link>

@@ -1,8 +1,10 @@
 "use client";
 
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/core/api";
+
 
 type Job = {
   id: string;
@@ -12,11 +14,13 @@ type Job = {
   applicantsCount: number;
 };
 
+
 const statusLabel: Record<Job["status"], string> = {
   DRAFT: "Bản nháp",
   PUBLISHED: "Đang tuyển",
   CLOSED: "Đã đóng",
 };
+
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -26,6 +30,7 @@ export default function JobsPage() {
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
+
 
   const loadJobs = async () => {
     try {
@@ -37,6 +42,7 @@ export default function JobsPage() {
     }
   };
 
+
   useEffect(() => {
     // Role is stored after login and is read after hydration.
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -44,7 +50,9 @@ export default function JobsPage() {
     void loadJobs();
   }, []);
 
+
   const canManageJobs = userRole === "ADMIN" || userRole === "RECRUITER";
+
 
   const changeJobStatus = async (job: Job, status: Job["status"]) => {
     try {
@@ -55,6 +63,7 @@ export default function JobsPage() {
       setError(statusError instanceof Error ? statusError.message : "Không thể cập nhật trạng thái Job");
     }
   };
+
 
   const saveJob = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -71,6 +80,7 @@ export default function JobsPage() {
     }
   };
 
+
   return (
     <main className="min-h-screen p-5 sm:p-8">
       <div className="mx-auto max-w-6xl">
@@ -82,6 +92,7 @@ export default function JobsPage() {
           </div>
           {canManageJobs && <Link href="/create-job" className="rounded-md bg-blue-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-800">Tạo công việc</Link>}
         </div>
+
 
         {error && <div className="mb-5 rounded-md border border-red-200 bg-red-50 p-4 text-red-700">{error}</div>}
         {isLoading && <p className="text-gray-500">Đang tải danh sách công việc...</p>}
@@ -109,6 +120,7 @@ export default function JobsPage() {
         </div>
       </div>
 
+
       {editingJob && <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/40 p-4">
         <form onSubmit={saveJob} className="w-full max-w-lg space-y-4 rounded-lg bg-white p-6">
           <h2 className="text-xl font-bold">Cập nhật vị trí</h2>
@@ -120,3 +132,8 @@ export default function JobsPage() {
     </main>
   );
 }
+
+
+
+
+
