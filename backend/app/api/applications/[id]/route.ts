@@ -39,6 +39,10 @@ export const PATCH = withErrorHandler(async (req: Request, ctx: { params: Promis
   const existing = await prisma.application.findUnique({ where: { id } });
   if (!existing) throw new NotFoundError('Không tìm thấy application');
 
+  if (existing.status === 'REJECTED' && parsed.data.status !== 'REJECTED') {
+    throw new ValidationError('Hồ sơ đã bị từ chối, không thể quay lại trạng thái trước đó');
+  }
+
   const application = await prisma.application.update({ where: { id }, data: parsed.data });
   await logAudit(authResult.userId, 'UPDATE_APPLICATION_STATUS', 'Application', id, parsed.data);
   return NextResponse.json(application);

@@ -1,4 +1,4 @@
-# 18.27. Output #27 - E2E Scenario mẫu
+# E2E Scenario 
 
 ## Kịch bản cốt lõi: Quy trình Tuyển dụng An toàn với Trợ lý AI (Core E2E Scenario)
 

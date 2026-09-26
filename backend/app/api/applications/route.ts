@@ -16,7 +16,7 @@ const createApplicationSchema = z.object({ jobId: z.string().uuid(), candidateId
 const querySchema = z.object({ jobId: z.string().uuid().optional() });
 
 export const GET = withErrorHandler(async (req: Request) => {
-  const authResult = requireRole(['ADMIN', 'RECRUITER', 'CANDIDATE', 'HIRING_MANAGER'])(req);
+  const authResult = requireRole(['ADMIN', 'RECRUITER', 'CANDIDATE'])(req);
   if (authResult instanceof NextResponse) return authResult;
 
   const url = new URL(req.url);
