@@ -1,0 +1,14 @@
+CV-05 — Frontend Developer, rất phù hợp
+Tên: Võ Thanh Tùng
+Vị trí: Frontend Developer
+years_of_experience: 4
+Skills:
+JavaScript
+TypeScript
+React.js
+Next.js
+HTML5
+CSS3
+Tailwind CSS
+Git
+Education: Cử nhân Công nghệ Phần mềm, Đại học Khoa học Tự nhiên TP.HCM

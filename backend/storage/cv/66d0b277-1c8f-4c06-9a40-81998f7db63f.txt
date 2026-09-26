@@ -1,0 +1,13 @@
+CV-20 — Không liên quan IT
+Tên: Lê Thị Ngọc
+Vị trí: Sales Executive
+years_of_experience: 6
+Skills:
+Sales
+Customer Service
+Negotiation
+Communication
+Microsoft Excel
+CRM
+Presentation
+Education: Cử nhân Quản trị Kinh doanh, Đại học Thương mại
