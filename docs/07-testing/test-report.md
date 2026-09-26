@@ -9,11 +9,11 @@
 
 ## 1. TÓM TẮT KẾT QUẢ (EXECUTIVE SUMMARY)
 
-- **Tổng số Test Cases (Kế hoạch):** ~200+ TCs
-- **Số lượng đã thực thi (Automated Pytest):** 383 TCs (Bao gồm các Test file mới và Ma trận RBAC cũ)
-- **Số lượng Passed:** 109
+- **Tổng số Test Cases Kế hoạch:** ~200+ TCs
+- **Số lượng đã thực thi (Automated Pytest):** 94 TCs (Được định nghĩa chi tiết trong 4 file test script)
+- **Số lượng Passed:** 80
 - **Số lượng Failed:** 14 (Chính là các Bug hệ thống)
-- **Số lượng Skipped/Errors:** 241 Skipped (bỏ qua do cấu hình) / 19 Errors (Lỗi môi trường UI Browser)
+- **Tỷ lệ Pass (Pass Rate):** 85.1%
 - **Tổng số Bug cốt lõi ghi nhận:** 14 Bugs (Đã xuất 13 Bug Reports chi tiết và 1 lỗi phân quyền RBAC)
 
 Hệ thống **CHƯA ĐẠT** tiêu chuẩn để Release. Có quá nhiều lỗ hổng bảo mật nghiêm trọng (OWASP) và lỗi nghiệp vụ cốt lõi (Data Integrity, State Machine) cần được Fix ngay lập tức (Hotfix) trước khi đưa lên Staging/Production.
