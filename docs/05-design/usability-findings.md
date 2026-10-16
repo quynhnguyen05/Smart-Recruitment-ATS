@@ -1,10 +1,5 @@
 # Kết Quả Thử Nghiệm Độ Khả Dụng (Usability Findings) — Smart Recruitment ATS
 
-**Version:** 1.2
-
-**Last updated:** 2026-10-14  
-
-**Owner:** UX/UI
 
 **Người tham gia thử nghiệm (Participants):**  
 - **P1:** Chuyên viên tuyển dụng kỳ cựu (Recruiter, 2 năm kinh nghiệm thực tế sử dụng các phần mềm ATS).  
