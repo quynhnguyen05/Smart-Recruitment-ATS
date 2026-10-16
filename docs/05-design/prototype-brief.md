@@ -1,10 +1,5 @@
 # Bản Tóm Tắt Đặc Tả Nguyên Mẫu (Prototype Brief) — Smart Recruitment ATS
 
-**Version:** 1.2
-
-**Last updated:** 2026-10-14  
-
-**Owner:** UX/UI
 
 ---
 
