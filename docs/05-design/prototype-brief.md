@@ -1,7 +1,6 @@
 # Bản Tóm Tắt Đặc Tả Nguyên Mẫu (Prototype Brief) — Smart Recruitment ATS
 
 
----
 
 ## 1. Mục Tiêu Của Bản Thử Nghiệm & Hệ Thống (Prototype & System Goals)
 
