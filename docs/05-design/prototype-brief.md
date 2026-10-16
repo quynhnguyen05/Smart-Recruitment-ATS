@@ -1,5 +1,6 @@
 # Bản Tóm Tắt Đặc Tả Nguyên Mẫu (Prototype Brief) — Smart Recruitment ATS
 
+
 # 1. Mục Tiêu Của Bản Thử Nghiệm & Hệ Thống (Prototype & System Goals)
 
 Mục tiêu cốt lõi là kiểm chứng và vận hành thực tế **4 luồng nghiệp vụ tuyển dụng có rủi ro trải nghiệm người dùng (UX Risk) cao nhất**:
@@ -117,36 +118,6 @@ Mục tiêu cốt lõi là kiểm chứng và vận hành thực tế **4 luồn
 
 ---
 
-## 5. Thống Nhất 4 Điểm "Vàng" Kỹ Thuật (4 Golden Rules)
+> 💡 **Quy chuẩn kỹ thuật:** Toàn bộ các luồng nguyên mẫu đã tuân thủ chặt chẽ Thang điểm Scorecard 1-10, giới hạn CV 5MB, cơ chế Token XAC NHAN / Audit Log và kiểm soát thời gian phỏng vấn (Xem chi tiết tại [decision-log-design.md](./decision-log-design.md)).
 
-| STT | Điểm "Vàng" kỹ thuật | Quy chuẩn thống nhất tuyệt đối | Vị trí kiểm chứng mã nguồn |
-|:---:|:---|:---|:---|
-| **1** | **Thang điểm Scorecard** | Thống nhất tuyệt đối **Thang điểm 1 - 10** (`min="1" max="10"`). Database lưu kiểu `Int`. Điểm trung bình ≥ 8 được làm nổi bật để xem xét chốt Offer. | `frontend/app/scorecard/page.tsx:135`<br>`backend/prisma/schema.prisma:148` |
-| **2** | **Giới hạn dung lượng CV** | Thống nhất tuyệt đối tệp nộp tối đa **5MB**, hỗ trợ định dạng **PDF, DOCX, TXT** (khớp chính xác với `apply/page.tsx`). | `frontend/app/apply/page.tsx:40, 45`<br>`backend/app/api/applications/[id]/match/route.ts` |
-| **3** | **Cơ chế xác nhận (Confirmation)** | - **Từ chối (Reject):** Dùng Modal cảnh báo ghi Audit Log, sau khi xác nhận thì chuyển sang `REJECTED` và **tuyệt đối không thể hoàn tác**.<br>- **Chốt Offer (Offer Approval):** Dùng Modal Human Confirmation bắt buộc người dùng phải gõ chính xác cụm từ token **`XAC NHAN`**. | `frontend/app/cv-review/page.tsx:227`<br>`frontend/app/offer-approval/page.tsx:146`<br>`backend/app/api/offers/[id]/confirm/route.ts:23` |
-| **4** | **Kiểm soát thời gian phỏng vấn** | Nút Submit trên Scorecard tự động bị khóa (`disabled`) nếu `scheduledAt > now` kèm thông báo *"Chưa đến thời gian phỏng vấn"*. | `frontend/app/scorecard/page.tsx:159, 166` |
-
----
-
-## 6. Khung Phân Rã 14 User Stories (5 Epics) Toàn Hệ Thống
-
-- **Epic 1: Job & Application (Quản lý tin & Nộp CV)**
-  - `US-ATS-01`: Tạo và quản lý tin tuyển dụng (`/create-job`, `/dashboard`)
-  - `US-ATS-02`: Xem danh sách việc làm và nộp hồ sơ ứng tuyển kèm CV PDF/DOCX/TXT ≤ 5MB (`/jobs`, `/apply`)
-- **Epic 2: AI Screening (Sàng lọc thông minh bằng AI)**
-  - `US-ATS-03`: Đọc và hiển thị tệp CV gốc trên giao diện (`/cv-review` — Ngăn trái 60%)
-  - `US-ATS-04`: Tính năng tóm tắt kỹ năng và kinh nghiệm thực chiến bằng AI (`/cv-review` — Nút "✨ Tóm tắt CV")
-  - `US-ATS-05`: Tính toán AI Match Score và phân tích chi tiết kỹ năng có / thiếu (`/cv-review` — Ngăn phải 40%)
-  - `US-ATS-06`: Ra quyết định Pass / Reject có ghi nhận lịch sử kiểm toán Audit Log (`/cv-review` — Nút Pass/Reject & Modal M01)
-- **Epic 3: Interview & Scorecard (Quản lý phỏng vấn & Đánh giá)**
-  - `US-ATS-07`: Lên lịch phỏng vấn Vòng 1 / Vòng 2 cho ứng viên đạt vòng hồ sơ (`/schedule-interview`)
-  - `US-ATS-08`: Quản lý danh sách lịch phỏng vấn cá nhân được phân công (`/my-interviews`)
-  - `US-ATS-09`: Hiển thị khối AI gợi ý câu hỏi phỏng vấn dựa trên CV và JD (`/scorecard` — Ngăn phải)
-  - `US-ATS-10`: Phiếu chấm điểm chuyên môn thang điểm 1 - 10 và nộp Scorecard (`/scorecard` — Khóa nút nếu chưa đến giờ)
-- **Epic 4: Decision & Offer (Phê duyệt và Chốt Offer)**
-  - `US-ATS-11`: Bảng tổng hợp điểm các vòng phỏng vấn dành cho Quản lý tuyển dụng (`/scorecard-summary`)
-  - `US-ATS-12`: Soạn thảo mức lương đề xuất và xác nhận chốt Offer bằng Token XAC NHAN (`/offer-approval` & Modal M02)
-- **Epic 5: Candidate & Admin (Cổng ứng viên & Quản trị hệ thống)**
-  - `US-ATS-13`: Cổng theo dõi tiến trình và trạng thái đơn ứng tuyển của ứng viên (`/applications`)
-  - `US-ATS-14`: Quản lý tài khoản người dùng, cấp quyền mới và vô hiệu hóa user soft-delete (`/admin-users`)
 
