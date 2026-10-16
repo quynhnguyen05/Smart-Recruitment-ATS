@@ -1,8 +1,6 @@
 # Bản Tóm Tắt Đặc Tả Nguyên Mẫu (Prototype Brief) — Smart Recruitment ATS
 
-
-
-## 1. Mục Tiêu Của Bản Thử Nghiệm & Hệ Thống (Prototype & System Goals)
+# 1. Mục Tiêu Của Bản Thử Nghiệm & Hệ Thống (Prototype & System Goals)
 
 Mục tiêu cốt lõi là kiểm chứng và vận hành thực tế **4 luồng nghiệp vụ tuyển dụng có rủi ro trải nghiệm người dùng (UX Risk) cao nhất**:
 
