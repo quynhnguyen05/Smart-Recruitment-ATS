@@ -1,7 +1,5 @@
 # Bảng Quy Chuẩn Văn Bản Trải Nghiệm Người Dùng (UX Copy Table) — Smart Recruitment ATS
 
----
-
 ## 5 Nguyên Tắc Vàng Trong Soạn Thảo UX Copy (UX Writing Principles)
 
 1. **Rõ ràng & Minh bạch (Clear):** Người dùng luôn biết chính xác mình đang thao tác điều gì, tác động đến ai và hệ quả tiếp theo là gì.
