@@ -16,9 +16,9 @@ Mục tiêu cốt lõi là kiểm chứng và vận hành thực tế **4 luồn
 
 | Chân dung (Persona) | Vai trò thực tế (Role) | Nhiệm vụ chính trong hệ thống | Thao tác trên giao diện |
 |:---|:---|:---|:---|
-| **Lan** | Chuyên viên tuyển dụng (`RECRUITER`) | Xem tin tuyển dụng, sàng lọc CV ứng viên mới (`NEW`), duyệt đạt hoặc từ chối, lên lịch phỏng vấn | Sử dụng `/dashboard`, `/cv-review`, `/schedule-interview` |
-| **Mai** | Phỏng vấn viên chuyên môn (`INTERVIEWER`) | Xem lịch phỏng vấn được phân công, đối chiếu CV và chấm điểm chuyên môn vào Scorecard | Sử dụng `/my-interviews`, `/scorecard` |
-| **Huy** | Quản lý tuyển dụng (`HIRING_MANAGER`) | Xem bảng tổng hợp điểm phỏng vấn các vòng, tạo mức lương đề xuất và xác nhận chốt Offer | Sử dụng `/scorecard-summary`, `/offer-approval` |
+| **Lan** | Chuyên viên tuyển dụng kỳ cựu (`RECRUITER` có kinh nghiệm ATS) | Xem tin tuyển dụng, sàng lọc CV ứng viên mới (`NEW`), duyệt đạt hoặc từ chối, lên lịch phỏng vấn, tổng hợp điểm và chốt Offer | Sử dụng `/dashboard`, `/cv-review`, `/schedule-interview`, `/scorecard-summary`, `/offer-approval` |
+| **Mai** | Chuyên viên tuyển dụng mới (`RECRUITER` - Junior Recruiter) | Thực hiện sàng lọc CV với sự hỗ trợ của AI, làm quen quy trình và đối chiếu kỹ năng ứng viên | Sử dụng `/dashboard`, `/cv-review` |
+| **Huy** | Phỏng vấn viên chuyên môn kỹ thuật (`INTERVIEWER` - Technical Interviewer) | Xem lịch phỏng vấn được phân công, đối chiếu CV và chấm điểm chuyên môn (thang điểm 1 - 10) vào Scorecard | Sử dụng `/my-interviews`, `/scorecard` |
 | **An** | Ứng viên tuyển dụng (`CANDIDATE`) | Tìm kiếm vị trí đang mở, nộp hồ sơ kèm CV (PDF/DOCX/TXT ≤ 5MB) và theo dõi tiến trình đơn | Sử dụng `/jobs`, `/apply`, `/applications` |
 
 ---
@@ -27,11 +27,11 @@ Mục tiêu cốt lõi là kiểm chứng và vận hành thực tế **4 luồn
 
 ### LUỒNG A — Sàng Lọc Hồ Sơ Ứng Viên (CV Screening Flow)
 
-- **Người thực hiện:** Lan – Chuyên viên tuyển dụng (`RECRUITER` / `ADMIN`)  
+- **Người thực hiện:** Lan (Recruiter kỳ cựu) / Mai (Junior Recruiter) (`RECRUITER` / `ADMIN`)  
 - **Màn hình thực tế:** `/cv-review` (Giao diện chia đôi màn hình 60/40)  
 
 #### Kịch bản & Thao tác:
-1. Lan truy cập `/cv-review`. Hệ thống nạp danh sách hồ sơ ở trạng thái `NEW` vào dropdown lựa chọn.
+1. Chuyên viên tuyển dụng truy cập `/cv-review`. Hệ thống nạp danh sách hồ sơ ở trạng thái `NEW` vào dropdown lựa chọn.
 2. Cột trái (60%): Xem CV gốc qua iframe PDF hoặc thẻ pre văn bản. Nút **"✨ Tóm tắt CV (AI)"** cho phép chuyển đổi tức thì sang chế độ xem tóm tắt kỹ năng và kinh nghiệm do AI trích xuất.
 3. Cột phải (40%): Hiển thị thẻ **AI Match Score** (tính theo tỷ lệ từ khóa xuất hiện trong CV so với JD), danh sách kỹ năng khớp và kỹ năng cần hỏi thêm.
 4. Quyết định tuyển dụng:
@@ -42,39 +42,39 @@ Mục tiêu cốt lõi là kiểm chứng và vận hành thực tế **4 luồn
 
 ### LUỒNG B — Phỏng Vấn & Đánh Giá Scorecard (Interview & Scorecard Flow)
 
-- **Người thực hiện:** Mai – Phỏng vấn viên (`INTERVIEWER` / `ADMIN`)  
+- **Người thực hiện:** Huy – Phỏng vấn viên chuyên môn kỹ thuật (`INTERVIEWER` / `ADMIN`)  
 - **Màn hình thực tế:** `/my-interviews` → `/scorecard?interviewId=:id`  
 
 #### Kịch bản & Thao tác:
-1. Mai vào `/my-interviews`, xem danh sách các ca phỏng vấn được phân công chưa có điểm đánh giá.
+1. Huy vào `/my-interviews`, xem danh sách các ca phỏng vấn được phân công chưa có điểm đánh giá.
 2. Bấm nút **"Vào chấm điểm (Scorecard)"** tại ca phỏng vấn cần chấm.
 3. Màn hình chia đôi `/scorecard`:
-   - Ngăn trái (60%): Hiển thị CV gốc của ứng viên để Mai đối chiếu xuyên suốt buổi phỏng vấn.
+   - Ngăn trái (60%): Hiển thị CV gốc của ứng viên để Huy đối chiếu xuyên suốt buổi phỏng vấn.
    - Ngăn phải (40%): Hiển thị AI Match Score, khối gợi ý câu hỏi từ AI, ô nhập **Điểm chuyên môn (1 - 10)** và ô **Ghi chú đánh giá**.
 4. **Kiểm tra nghiệp vụ thời gian:** Nếu ca phỏng vấn chưa đến giờ (`scheduledAt > now`), nút bấm hiển thị *"Chưa đến thời gian phỏng vấn"* và bị khóa mờ để ngăn chặn việc chấm điểm khống trước giờ.
-5. Khi phỏng vấn xong, Mai nhập điểm (1-10) và ghi chú rồi bấm **"Lưu đánh giá (Submit)"**. Hệ thống hiển thị hộp thoại xác nhận lưu thành công và cho phép quay về danh sách.
+5. Khi phỏng vấn xong, Huy nhập điểm (1-10) và ghi chú rồi bấm **"Lưu đánh giá (Submit)"**. Hệ thống hiển thị hộp thoại xác nhận lưu thành công và cho phép quay về danh sách.
 
 ---
 
-### LUỒNG C — Quản Lý Tuyển Dụng Tổng Hợp Điểm & Phê Duyệt Offer (Hiring Manager Flow)
+### LUỒNG C — Quản Lý Tuyển Dụng Tổng Hợp Điểm & Phê Duyệt Offer (Offer Approval Flow)
 
-- **Người thực hiện:** Huy – Quản lý tuyển dụng (`HIRING_MANAGER` / `ADMIN`)  
+- **Người thực hiện:** Lan – Chuyên viên tuyển dụng kỳ cựu / Phụ trách tuyển dụng (`RECRUITER` / `HIRING_MANAGER` / `ADMIN`)  
 - **Màn hình thực tế:** `/scorecard-summary` → `/offer-approval?applicationId=:id`  
 
 #### Kịch bản & Thao tác:
-1. Huy truy cập `/scorecard-summary` để xem bảng tổng hợp kết quả: Điểm Vòng 1, Điểm Vòng 2 và Điểm trung bình của từng ứng viên.
+1. Lan truy cập `/scorecard-summary` để xem bảng tổng hợp kết quả: Điểm Vòng 1, Điểm Vòng 2 và Điểm trung bình của từng ứng viên.
 2. Bấm **"Tạo Offer"** tại hàng ứng viên đã có điểm để chuyển sang `/offer-approval`.
 3. Nhập mức lương đề xuất và bấm **"Tạo Offer nháp"** (bản ghi Offer được tạo với trạng thái `DRAFT`).
 4. Bấm **"Xác nhận Offer"**:
    - Bật mở Hộp thoại **Human Confirmation Modal**.
-   - Yêu cầu bắt buộc: Huy phải gõ chính xác từ khóa token **`XAC NHAN`** vào ô nhập.
+   - Yêu cầu bắt buộc: Lan phải gõ chính xác từ khóa token **`XAC NHAN`** vào ô nhập.
    - Bấm **"Chốt Offer"**: Máy chủ kiểm tra token và phân quyền, cập nhật trạng thái Offer thành `CONFIRMED` và ghi nhận lịch sử vào bảng `AuditLog`.
 
 ---
 
 ### LUỒNG D — Dự Phòng Sự Cố AI (AI Service Fallback Flow)
 
-- **Người thực hiện:** Lan / Mai / Toàn bộ người dùng  
+- **Người thực hiện:** Lan / Mai / Huy / Toàn bộ người dùng  
 - **Kịch bản thực tế:**
   1. Khi tệp CV là định dạng DOCX hoặc PDF dạng ảnh quét không trích xuất được chữ: API `/api/applications/:id/match` trả về trạng thái `INSUFFICIENT_DATA`, điểm hiển thị `N/A` và thông báo rõ ràng cho người dùng biết để tự đọc file thủ công.
   2. Khi dịch vụ tóm tắt AI gặp lỗi kết nối hoặc nhận tham số `simulateError=true`: Hệ thống trả về mã lỗi 503 kèm thông báo *"Dịch vụ AI đang gián đoạn"*. Người dùng vẫn xem toàn bộ CV gốc bình thường và nút Pass/Reject vẫn hoạt động trơn tru.
