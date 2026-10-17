@@ -1,9 +1,5 @@
 # Bảng Quy Chuẩn Văn Bản Trải Nghiệm Người Dùng (UX Copy Table) — Smart Recruitment ATS
 
-**Phiên bản (Version):** 1.3 (Chuẩn hóa đồng bộ 100% với giao diện Frontend Next.js & API Backend thực tế)  
-**Cập nhật lần cuối (Last updated):** 2026-10-16  
-**Người phụ trách (Owner):** UX/UI & Engineering  
-
 ---
 
 ## 5 Nguyên Tắc Vàng Trong Soạn Thảo UX Copy (UX Writing Principles)
