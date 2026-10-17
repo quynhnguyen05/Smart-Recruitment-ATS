@@ -374,6 +374,5 @@ Hệ thống sử dụng các thành phần phản hồi trạng thái rõ ràng
 
 | Phiên bản | Ngày | Nội dung thay đổi | Tác giả |
 |:---|:---|:---|:---|
-| 1.0 | 2026-10-01 | Tạo lần đầu — design tokens + 4 component cơ bản | UX/UI |
-| 1.1 | 2026-10-08 | Thêm SkillsPanel, cập nhật quy tắc bố cục | UX/UI |
-| 1.2 | 2026-10-13 | DES-01..04 từ Usability Test: đổi vị trí badge, thêm nhãn pane, cập nhật modal, thêm CTA banner lỗi | UX/UI |
+| 1.0 | 2026-08-25 | Tạo lần đầu — design tokens + 4 component cơ bản | UX/UI |
+| 1.1 | 2026-09-15 | DES-01..04 từ Usability Test: đổi vị trí badge, thêm nhãn pane, cập nhật modal, thêm CTA banner lỗi | UX/UI |
