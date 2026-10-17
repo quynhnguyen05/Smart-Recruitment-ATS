@@ -82,10 +82,6 @@
 | `type.button` | Inter | 14px / 20px | 600 (Semibold) | Chữ trên nút bấm (Button label) |
 | `type.badge` | Inter | 12px / 16px | 700 (Bold) | Chữ trên badge điểm Match Score, chip trạng thái |
 
-**Cách tải font:**
-```css
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-```
 
 ---
 
