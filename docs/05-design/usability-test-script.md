@@ -1,8 +1,5 @@
 # Kịch Bản Thử Nghiệm Độ Khả Dụng (Usability Test Script) — Smart Recruitment ATS
-
-**Phiên bản (Version):** 1.2 (Chuẩn hóa đồng bộ 100% với hệ thống thực tế HireFlow AI)  
-**Cập nhật lần cuối (Last updated):** 2026-10-16  
-**Người phụ trách (Owner):** UX/UI & Engineering  
+ 
 **Môi trường thử nghiệm:** Trình duyệt Google Chrome trên Desktop, chạy ứng dụng Next.js thực tế kết nối API Backend.  
 
 ---
