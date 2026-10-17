@@ -1,9 +1,6 @@
 # Danh Mục Kiểm Tra Cấu Trúc Tệp Figma (Figma File Structure Checklist) — Smart Recruitment ATS
 
-**Phiên bản (Version):** 1.3 (Chuẩn hóa đồng bộ 100% với Cơ cấu 14 User Stories & 4 Điểm Vàng Kỹ Thuật)  
-**Cập nhật lần cuối (Last updated):** 2026-10-16  
-**Người phụ trách (Owner):** UX/UI & Engineering  
-**Tệp Figma chính thức (Figma File):** [Liên kết dự án Figma — Lưu trữ trong hồ sơ thiết kế đồ án]  
+**Tệp Figma chính thức (Figma File):** [[Liên kết dự án Figma — Lưu trữ trong hồ sơ thiết kế đồ án](https://www.figma.com/design/9NjVV4wDFh56n0F7Hzi3Lj/Nh%C3%B3m-3_-Smart-ATS?node-id=0-1&p=f&t=8X8TH2VWpsi8fhwA-0)]  
 
 > 💡 **Mục đích:** Danh mục kiểm tra này đảm bảo các khung thiết kế Figma phản ánh chính xác cấu trúc trang, thành phần giao diện, luồng nghiệp vụ và 4 điểm vàng kỹ thuật đã được hiện thực hóa trong mã nguồn Frontend Next.js và Backend Prisma/PostgreSQL của hệ thống HireFlow AI.
 
