@@ -1,7 +1,7 @@
 # Bảng Kiểm Kê Màn Hình & Ma Trận Trạng Thái (Screen Inventory & State Matrix) — Smart Recruitment ATS
 
----
 **Hệ thống thực tế:** Ứng dụng Quản trị Tuyển dụng Thông minh HireFlow AI  
+---
 > 💡 **Lưu ý:** Toàn bộ danh mục màn hình và ma trận trạng thái dưới đây đã tuân thủ tuyệt đối Thang điểm 1-10, giới hạn CV 5MB, cơ chế Token XAC NHAN / Audit Log và kiểm soát thời gian Scorecard (Xem chi tiết tại [decision-log-design.md](./decision-log-design.md)).
 
 ---
