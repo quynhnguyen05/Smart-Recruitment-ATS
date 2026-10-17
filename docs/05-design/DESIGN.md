@@ -1,7 +1,7 @@
 # DESIGN.md — Hệ Thống Thiết Kế (Design System) · Smart Recruitment ATS
 
 **Phiên bản:** 1.2 (Cập nhật sau Usability Test vòng 1)
-**Cập nhật lần cuối:** 2026-10-13
+**Cập nhật lần cuối:** 2026-09-15
 **Người sở hữu:** UX/UI
 **Nguồn tham chiếu:** usability-findings.md (DES-01..04), prototype-brief.md
 
